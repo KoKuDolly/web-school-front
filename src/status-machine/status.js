@@ -58,4 +58,4 @@ function match (string) {
     return false
 }
 
-console.log(match('abcdeefg'))
+console.log(match('abcdefg'))
