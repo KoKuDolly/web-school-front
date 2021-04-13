@@ -43,9 +43,11 @@ function foundC(c) {
 }
 
 function foundD(c) {
-    if (c === 'f') {
+    if (c === 'e') {
         return end;
     } else {
         return start;
     }
 }
+
+console.log(match('abcdefg'))
