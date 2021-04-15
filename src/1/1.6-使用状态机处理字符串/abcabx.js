@@ -10,44 +10,35 @@ function start(c) {
     if (c === 'a') {
         return foundA;
     } else {
-        return start;
+        return start(c);
     }
-}
- 
-function end(c) {
-    return end;
 }
 
 function foundA(c) {
     if (c === 'b') {
         return foundB;
     } else {
-        return start;
-    }
-}
-
-function foundB(c) {
-    if (c === 'c') {
-        return foundC;
-    } else {
-        return start;
+        return start(c);
     }
 }
 
 function foundC(c) {
-    if (c === 'd') {
-        return foundD;
-    } else {
+    if (c === 'c') {
         return start;
+    } else {
+        return start(c);
     }
 }
 
-function foundD(c) {
-    if (c === 'e') {
+function foundB(c) {
+    if (c === 'x') {
         return end;
     } else {
-        return start;
+        return foundC(c);
     }
 }
 
-console.log(match('abcdefg'))
+function end(c) {
+    return end;
+}
+console.log(match('abcabax'))
