@@ -17,9 +17,9 @@ class Request {
     } else if (
       this.headers['Content-Type'] === 'application/x-www-form-urlencoded'
     ) {
-      this.bodyText = Object.keys(this.body).map((key) =>
-        `${key}=${encodeURIComponent(this.body[key])}`.join('&')
-      )
+      this.bodyText = Object.keys(this.body)
+        .map((key) => `${key}=${encodeURIComponent(this.body[key])}`)
+        .join('&')
     } else {
       this.headers['Content-Type'] = this.bodyText.length
     }
@@ -37,7 +37,8 @@ class Request {
             port: this.port,
           },
           () => {
-            connection.write(this.toString())
+            console.log(this.toString())
+            // connection.write(this.toString())
           }
         )
       }
@@ -46,8 +47,8 @@ class Request {
         parser.receive(data.toString())
         if (parser.isFinished) {
           resolve(parser.response)
-          connection.end()
         }
+        connection.end()
       })
       connection.on('error', (err) => {
         reject(err)
@@ -58,10 +59,10 @@ class Request {
 
   toString() {
     return `${this.method} ${this.path} HTTP/1.1\r
-    ${Object.keys(this.headers)
-      .map((key) => `${key}: ${this.headers(key)}`)
-      .join('\r\n')}\r\r
-    ${this.bodyText}`
+${Object.keys(this.headers)
+  .map((key) => `${key}: ${this.headers[key]}`)
+  .join('\r\n')}\r\r
+${this.bodyText}`
   }
 }
 
@@ -197,7 +198,7 @@ class TrunkedBodyParser {
 
 void (async function () {
   let request = new Request({
-    method: 'POST',
+    method: 'GET',
     host: '127.0.0.1',
     port: '8088',
     path: '/',
@@ -209,7 +210,11 @@ void (async function () {
     },
   })
 
-  let response = await request.send()
+  try {
+    let response = await request.send()
 
-  console.log(response)
+    console.log(response)
+  } catch (e) {
+    console.error(e)
+  }
 })()
