@@ -20,9 +20,8 @@ class Request {
       this.bodyText = Object.keys(this.body)
         .map((key) => `${key}=${encodeURIComponent(this.body[key])}`)
         .join('&')
-    } else {
-      this.headers['Content-Type'] = this.bodyText.length
     }
+    this.headers['Content-Length'] = this.bodyText.length
   }
 
   send(connection) {
@@ -37,17 +36,16 @@ class Request {
             port: this.port,
           },
           () => {
-            console.log(this.toString())
-            // connection.write(this.toString())
+            connection.write(this.toString())
           }
         )
       }
       connection.on('data', (data) => {
-        console.log(data.toString())
         parser.receive(data.toString())
         if (parser.isFinished) {
           resolve(parser.response)
         }
+        console.log(parser.isFinished)
         connection.end()
       })
       connection.on('error', (err) => {
@@ -59,9 +57,8 @@ class Request {
 
   toString() {
     return `${this.method} ${this.path} HTTP/1.1\r
-${Object.keys(this.headers)
-  .map((key) => `${key}: ${this.headers[key]}`)
-  .join('\r\n')}\r\r
+${Object.keys(this.headers).map((key) => `${key}: ${this.headers[key]}`).join('\r\n')}\r
+\r
 ${this.bodyText}`
   }
 }
@@ -145,7 +142,6 @@ class ResponseParser {
         this.current = this.WAITING_BODY
       }
     } else if (this.current === this.WAITING_BODY) {
-      // console.log(char)
       this.bodyParser.receiveChar(char)
     }
   }
@@ -206,15 +202,14 @@ void (async function () {
       ['X-Foo2']: 'customed',
     },
     body: {
-      name: 'winter',
+      name: 'names',
+      age: 25
     },
   })
 
-  try {
-    let response = await request.send()
+  let response = await request.send()
 
-    console.log(response)
-  } catch (e) {
-    console.error(e)
-  }
-})()
+  console.log(response)
+})().catch(err=> {
+  console.log(err)
+}) 
