@@ -14,9 +14,7 @@ class Request {
 
     if (this.headers['Content-Type'] === 'application/json') {
       this.bodyText = JSON.stringify(this.body)
-    } else if (
-      this.headers['Content-Type'] === 'application/x-www-form-urlencoded'
-    ) {
+    } else if (this.headers['Content-Type'] === 'application/x-www-form-urlencoded') {
       this.bodyText = Object.keys(this.body)
         .map((key) => `${key}=${encodeURIComponent(this.body[key])}`)
         .join('&')
@@ -45,7 +43,7 @@ class Request {
         if (parser.isFinished) {
           resolve(parser.response)
         }
-        console.log(parser.isFinished)
+        console.log(parser.isFinished, 'finish')
         connection.end()
       })
       connection.on('error', (err) => {
@@ -56,10 +54,10 @@ class Request {
   }
 
   toString() {
-    return `${this.method} ${this.path} HTTP/1.1\r
-${Object.keys(this.headers).map((key) => `${key}: ${this.headers[key]}`).join('\r\n')}\r
-\r
-${this.bodyText}`
+    const statusLine = `${this.method} ${this.path} HTTP/1.1`
+    const headerLine = `${Object.keys(this.headers).map((key) => `${key}: ${this.headers[key]}`).join('\r\n')}`
+    const bodyLine = `${this.bodyText}`
+    return statusLine + '\r\n' + headerLine + '\r\n\r\n' + bodyLine
   }
 }
 
@@ -203,13 +201,13 @@ void (async function () {
     },
     body: {
       name: 'names',
-      age: 25
+      age: 25,
     },
   })
 
   let response = await request.send()
 
-  console.log(response)
-})().catch(err=> {
+  console.log(response, 'response')
+})().catch((err) => {
   console.log(err)
-}) 
+})
