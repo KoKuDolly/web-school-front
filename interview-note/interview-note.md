@@ -1,0 +1,336 @@
+# interview
+
+## ajax 解决浏览器缓存
+
+setRequestHeader('If-Modified-Since', '0')
+setRequestHeader("Cache-Control", "no-cache")
+
+url 后加随机数 "fresh=" + Math.random()
+
+url 后加时间戳 "nowtime=" + new Date.getTime()
+
+## js 节流防抖
+
+## once 函数
+
+```js
+function once(fn) {
+  var tag = true
+  return function () {
+    if (tag === true) {
+      fn.apply(null, arguments)
+      tag = false
+    }
+    return undefined
+  }
+}
+
+let fn = () => {}
+let onceCall = once(fn)
+
+onceCall() // 这里只执行一次
+```
+
+## arguments 的理解
+
+## ajax 的 promise 封装
+
+```js
+var myAjaxPromise = function (url) {
+  return new Promise(function (resolve, reject) {
+    var xhr = new XMLHttpRequest()
+    xhr.onreadystatechange = function () {
+      try {
+        if (xhr.readyState === 4) {
+          if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304) {
+            resolve()
+          } else {
+            reject('返回错误')
+          }
+        }
+      } catch (e) {
+        // 超时的处理
+        reject(e)
+      }
+    }
+    xhr.ontimeout = function () {
+      reject('请求超时')
+    }
+    xhr.open('get', url)
+    xhr.timeout = 1000
+    xhr.setRequestHeader(('Content-Type': 'application/x-www-form-urlencoded'))
+    xhr.send(null) // post 这里要传参数
+  })
+}
+```
+
+## 深拷贝 包装类型，非包装类型
+
+Number String Boolean Date RegExp
+
+```js
+// 普通object 和array
+function deepClone() {
+  var newObj = obj instanceof Array ? [] : {}
+  for (var i in obj) {
+    newObj[i] = typeof obj[i] === 'object' ? deepClone(obj[i]) : obj[i]
+  }
+  return newObj
+}
+// 包装类型 对象 Number String Boolean
+function baseClone(base) {
+  return base.valueOf()
+  // 包装类型就返回原始值
+  // 数组，函数，正则 继承了这个方法，返回的是自身
+}
+// Date类型
+Date.prototype.clone = function () {
+  return new Date(this.valueOf())
+}
+// 正则
+RegExp.prototype.clone = function () {
+  var pattern = this.valueOf()
+  var flags = ''
+  flags += pattern.global ? 'g' : ''
+  flags += pattern.ignoreCase ? 'i' : ''
+  flags += pattern.multiline ? 'm' : ''
+  return new RegExp(pattern.source, flags)
+}
+```
+
+## 深拷贝 一个元素 ？
+
+```js
+var deepCopy = function (obj) {
+  if (typeof obj !== 'object') return
+  var newObj = obj instanceof Array ? [] : {}
+  for (var key in obj) {
+    // 这里排除掉 prototype上的属性和方法
+    if (obj.hasOwnProperty(key)) {
+      newObj[key] = typeof obj[key] === 'object' ? deepCopy(obj[key]) : obj[key]
+    }
+  }
+  return newObj
+}
+```
+
+## 深拷贝
+
+```js
+function clone(obj) {
+  var copy
+  switch (typeof obj) {
+    case 'undefined':
+      break
+    case 'number':
+      copy = obj - 0
+      break
+    case 'string':
+      copy = obj + ''
+      break
+    case 'boolean':
+      copy = obj
+      break
+    case 'object':
+      if (obj === null) {
+        copy = null
+      } else {
+        if (Object.prototype.toString().call(obj).sclice(8, -1) === 'Array') {
+          copy = []
+          for (var i = 0; i < obj.length; i++) {
+            copy.push(clone(obj[i]))
+          }
+        } else {
+          copy = {}
+          for (var j in obj) {
+            copy[j] = clone(obj[j])
+          }
+        }
+      }
+      break
+    default:
+      copy = obj
+      break
+  }
+  return copy
+}
+```
+
+## Node Events 模块
+
+// 观察者模式，发布订阅
+
+```js
+function Events() {
+  this.on = function (eventName, callBack) {
+    if (!this.handles) {
+      this.handles = {}
+    }
+    if (!this.handles[eventName]) {
+      this.handles[eventName] = []
+    }
+    this.handles[eventName].push(callBack)
+  }
+  this.emit = function (eventName, obj) {
+    if (this.handles[eventName]) {
+      for (var i = 0; i < this.handles[eventName].length; i++) {
+        this.handles[eventName][i](obj)
+      }
+    }
+  }
+  //   return this
+}
+```
+
+## 数组去重
+
+indexOf
+Array.from(new Set(array))
+Object 键查重
+
+## 性能优化
+
+减少 http 请求，使用 cdn，添加本地缓存，压缩资源文件，避免使用 css 表达式，减少 dns 查询，使用外部 js 和 css，避免重定向，图片 lazyload
+
+## 闭包
+
+为什么要用闭包：
+匿名自执行函数，只需要执行一次，内部的变量无需维护，也不会污染全局变量
+
+结果缓存，有时候处理过程很耗时，所以可以用闭包做缓存。
+
+## js 跨域
+
+iframe 跨域
+location.hash + iframe 跨域
+window.name + iframe
+postMessage
+CORS
+代理服务器
+
+## js 基本数据类型
+
+undefined null number boolean string symbol
+
+## 重排 -> 重绘
+
+重排（也叫回流，重构，reflow） 一定会触发重绘，dom 树发生了变化，需要重新排版 dom 结构，然后再绘制元素的样式。
+重绘 不一定触发重排，重新绘制元素的大小，样式等，dom 结构并没有发生改变。
+
+## js 全排列 ？
+
+```js
+function permutate(str) {
+  var result = []
+  if (str.length > 1) {
+    var left = str[0]
+    var rest = str.slice(1, str.length)
+    var preResult = permutate(rest)
+    for (var i = 0; i < preResult.length; i++) {
+      for (var j = 0; j < preResult[i].length; j++) {
+        var tmp = preResult[i].slice(0, j) + left + preResult[i].slice(j, preResult[i].length)
+        result.push(tmp)
+      }
+    }
+  } else if (str.length === 1) {
+    return [str]
+  }
+  return result
+}
+```
+
+## 函数内封装一个对象，给对象添加方法，并实现链式调用
+
+Hero('37er') Hi!this is 37er
+Hero('37er').kill(1).recover(30) hi! this is 37er Kill 1 bug recover 30 bloods
+Hero('37er').sleep(10).kill(2) hi! this is 37er // 等待 10 秒后 kill 2 bugs
+
+```js
+function Hero(name) {
+  var o = {}
+  o.name = name
+  o.sleepTime = 0
+  console.log('hi! this is ' + o.name)
+  o.kill = function (bugs) {
+    if (o.sleepTime !== 0) {
+      setTimeout(function () {
+        console.log('Kill ' + bugs + ' bugs')
+      }, o.sleepTime * 1000)
+    } else {
+      console.log('Kill ' + bugs + ' bugs')
+    }
+    return o
+  }
+  o.recover = function (bloods) {
+    console.log('recover ' + bloods + ' bloods')
+    return o
+  }
+  o.sleep = function (sleep) {
+    o.sleepTime = sleep
+    return o
+  }
+  return o
+}
+```
+
+## js 继承
+
+原型链继承 构造继承 实例继承 拷贝继承 寄生组合继承
+
+## sleep 效果 （es5 或者 es6）
+
+```js
+// while
+function sleep(ms) {
+  var start = Date.now()
+  var expire = start + ms
+  while (Date.now() < expire) {
+    console.log('111')
+    return // 阻止死循环
+  }
+}
+// setTimeout
+function sleep(ms) {
+  setTimeout(() => {
+    console.log('111')
+  }, ms)
+}
+// promise
+function sleep(ms) {
+  return new Promise((resolve) => {
+    console.log(111)
+    setTimeout(resolve, ms)
+  })
+}
+sleep(10000).then(function () {
+  console.log(222)
+})
+// async
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms)
+  })
+  // return Promise.resolve(setTimeout(() => {}, ms))
+}
+async function test() {
+  var temp = await sleep(1000)
+  console.log(111)
+  return temp
+}
+// generate
+function* sleep(ms) {
+  yield new Promise(function (resolve, reject) {
+    console.log(111)
+    setTimeout(resolve, ms)
+  })
+}
+sleep(500)
+  .next()
+  .value.then(function () {
+    console.log(222)
+  })
+```
+
+## 简单实现 promise
+
+## 实现 promise.allSettled
