@@ -21,7 +21,7 @@ function once(fn) {
       fn.apply(null, arguments)
       tag = false
     }
-    return undefined
+    return
   }
 }
 
@@ -178,7 +178,19 @@ function Events() {
       }
     }
   }
-  //   return this
+  this.off = function (eventName, callback) {
+    var index = this.handles[eventName].indexOf(callback)
+    if (index !== -1) {
+      this.handles[eventName].splice(index, 1)
+    }
+  }
+  this.once = function (eventName, callback) {
+    var wrapper = function () {
+      callback.apply(arguments)
+      this.off(eventName, wrapper)
+    }
+    this.on(eventName, wrapper)
+  }
 }
 ```
 
@@ -333,4 +345,168 @@ sleep(500)
 
 ## 简单实现 promise
 
+```js
+var p = new Promise(function (resolve, reject) {
+  setTimeout(function () {
+    resolve('suc')
+  }, 1000)
+  console.log('创建一个新的promise')
+})
+p.then(function (c) {
+  console.log(c)
+})
+
+// 实现
+function myPromise(constructor) {
+  let self = this
+  self.status = 'pending'
+  self.value = undefined
+  self.reason = undefined
+  self.onFullfilledArray = []
+  self.onRejectedArray = []
+  function resolve(value) {
+    if (self.status === 'pending') {
+      self.value = value
+      self.status = 'resolved'
+      self.onFullfilledArray.forEach(function (f) {
+        f(self.value)
+      })
+    }
+  }
+  function reject(reason) {
+    if (self.status === 'pending') {
+      self.reason = reason
+      self.status = 'rejected'
+      self.onRejectedArray.forEach(function (f) {
+        f(self.reason)
+      })
+    }
+  }
+  try {
+    constructor(resolve, reject)
+  } catch (e) {
+    reject(e)
+  }
+}
+
+myPromise.prototype.then = function (onFullfilled, onRejected) {
+  let self = this
+  let promise2
+  switch (self.status) {
+    case 'pending':
+      promise2 = new myPromise(function (resolve, reject) {
+        self.onFullfilledArray.push(function () {
+          try {
+            let temple = onFullfilled(self.value)
+            resolve(temple)
+          } catch (e) {
+            reject(e)
+          }
+        })
+        self.onRejectedArray.push(function () {
+          try {
+            let temple = onRejected(self.reason)
+            reject(temple)
+          } catch (e) {
+            reject(e)
+          }
+        })
+      })
+    case 'resolved':
+      promise2 = new myPromise(function (resolve, reject) {
+        try {
+          resolve(onFullfilled(self.value))
+        } catch (e) {
+          reject(e)
+        }
+      })
+      break
+    case 'rejected':
+      promise2 = new myPromise(function (resolve, reject) {
+        try {
+          resolve(onRejected(self.reason))
+        } catch (e) {
+          reject(e)
+        }
+      })
+      break
+    default:
+      break
+  }
+  return promise2
+}
+```
+
 ## 实现 promise.allSettled
+
+## 继承与原型
+
+```js
+prototype // 这个是 js 的函数都具有的属性，指向函数的原型对象
+__proto__ // 这个是 js 的对象都具有的属性，指向构造函数的原型对象
+// 原型对象也是对象，所以原型对象的 __proto__ 指向的对象是 另一个构造函数创建的原型对象
+var a = {}
+a.constructor === Object(){}
+a.__proto__ === Object.prototype
+a.__proto__.__proto__ === null
+Object.prototype.__proto__ === null
+typeof Object === 'function'
+```
+
+## js 内置的构造函数
+
+构造函数就是类
+
+## 闭包写单例模式
+
+闭包，1，即使它创建的上下文已经销毁，它仍然存在。2，在代码中引入了自由变量，才称为闭包。
+
+闭包的应用，模仿块级作用域，保存外部函数变量，封装私有变量
+
+单例模式
+
+```js
+var Singleton = (function () {
+  var instance
+  var CreateSingleton = function (name) {
+    this.name = name
+    if (instance) return instance
+    this.getName()
+    return (instance = this)
+  }
+
+  CreateSingleton.prototype.getName = function () {
+    console.log(this.name)
+  }
+  return CreateSingleton
+})()
+
+var a = new Singleton('a')
+var b = new Singleton('b')
+console.log(a === b)
+```
+
+## User-Agent
+
+## 栈 和 堆 的区别
+
+## 词法作用域 静态作用域
+
+```js
+var value = 1
+function foo() {
+  console.log(value)
+}
+function bar() {
+  var value = 2
+  foo()
+}
+
+bar() // 1
+```
+
+## newBind
+
+```js
+
+```
