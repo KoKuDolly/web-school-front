@@ -1,5 +1,0 @@
-# css
-
-## 移动端的一些样式
-
-overflow-scrolling: touch; // 滚动条卡顿问题解决
