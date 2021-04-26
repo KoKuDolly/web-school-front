@@ -30,6 +30,8 @@ function layout(element) {
     items.sort(function (a, b) {
         return (a.order || 0) - (b.order || 0)
     })
+    var style = elementStyle
+
 }
 
 module.exports = layout
