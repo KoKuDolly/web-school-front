@@ -1,0 +1,38 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: "v3.4.0"
+    hooks:
+      - id: trailing-whitespace
+      - id: check-added-large-files
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-yaml
+      - id: double-quote-string-fixer
+      - id: end-of-file-fixer
+      - id: mixed-line-ending
+        fix: lf
+      - id: pretty-format-json
+        autofix: true
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: "v2.2.1"
+    hooks:
+      - id: prettier
+        additional_dependencies:
+          - prettier@2.2.1
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: "v7.25.0"
+    hooks:
+      - id: eslint
+        additional_dependencies:
+          - eslint@7.25.0
+          - eslint-config-prettier@8.3.0
+  - repo: https://github.com/awebdeveloper/pre-commit-stylelint
+    rev: "v0.0.1"
+    hooks:
+      - id: stylelint
+        additional_dependencies:
+          [
+            "stylelint@13.13.1",
+            "stylelint-config-standard@20.0.0",
+            "stylelint-config-prettier@8.0.2",
+          ]

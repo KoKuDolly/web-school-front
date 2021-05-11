@@ -1,4 +1,9 @@
 others
-.vscode
 node_modules
-yarn.lock
+.git
+# .vscode
+**-lock
+**.lock
+**cache
+**.log
+dist

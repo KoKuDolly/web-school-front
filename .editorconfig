@@ -1,0 +1,63 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+## tips
+# 1，当工程没有有些样式没有标准化，有些属性应该置为空。
+# 2，不声明某些属性是通常的做法并可以接受。
+# 例如：indent_style = tab 时，就没必要指定 indent_size，
+# 或者 tab_width 除非和 indent_size 不一致才需要被指定。
+
+## Wildcard Patterns 和 Supported Properties 两个重要概念
+
+### Properties
+
+#### prettier 无法转换的 属性
+root = true
+[*]
+charset = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+#### prettier 可以转换的 属性
+[*]
+end_of_line = lf
+indent_style = tab
+tab_width = 2
+# indent_size = 2
+
+#### example config file below
+
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+end_of_line = lf
+insert_final_newline = true
+
+# Matches multiple files with brace expansion notation
+# Set default charset
+[*.{js,py}]
+charset = utf-8
+
+# 4 space indentation
+[*.py]
+indent_style = space
+indent_size = 4
+
+[*.yaml]
+indent_size = 2
+indent_style = space
+
+# Tab indentation (no size specified)
+[Makefile]
+indent_style = tab
+
+# Indentation override for all JS under lib directory
+[lib/**.js]
+indent_style = space
+indent_size = 2
+
+# Matches the exact files either package.json or .travis.yml
+[{package.json,.travis.yml}]
+indent_style = space
+indent_size = 2
