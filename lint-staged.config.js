@@ -43,8 +43,8 @@ module.exports = async (allStagedFiles) => {
 
   const config = [
     jsFiles.length > 10
-      ? 'eslint --max-warnings=0 .'
-      : `eslint --max-warnings=0 ${jsFiles.join(' ')}`,
+      ? 'eslint --cache --fix --max-warnings=0 .'
+      : `eslint --cache --fix --max-warnings=0 ${jsFiles.join(' ')}`,
     // docFiles.length > 10 ? 'mdl .' : `mdl ${docFiles.join(' ')}`, // mdl 是 ruby 那个
     // tsFiles.length > 0 ? 'tsc -p tsconfig.json --noEmit' : '',
     prettierFiles.length > 0

@@ -1,6 +1,5 @@
 const net = require('net')
 const parser = require('./parser')
-
 class Request {
   constructor(props) {
     this.method = props.method || 'GET'
@@ -15,7 +14,9 @@ class Request {
 
     if (this.headers['Content-Type'] === 'application/json') {
       this.bodyText = JSON.stringify(this.body)
-    } else if (this.headers['Content-Type'] === 'application/x-www-form-urlencoded') {
+    } else if (
+      this.headers['Content-Type'] === 'application/x-www-form-urlencoded'
+    ) {
       this.bodyText = Object.keys(this.body)
         .map((key) => `${key}=${encodeURIComponent(this.body[key])}`)
         .join('&')
@@ -56,7 +57,9 @@ class Request {
 
   toString() {
     const statusLine = `${this.method} ${this.path} HTTP/1.1`
-    const headerLine = `${Object.keys(this.headers).map((key) => `${key}: ${this.headers[key]}`).join('\r\n')}`
+    const headerLine = `${Object.keys(this.headers)
+      .map((key) => `${key}: ${this.headers[key]}`)
+      .join('\r\n')}`
     const bodyLine = `${this.bodyText}`
     return statusLine + '\r\n' + headerLine + '\r\n\r\n' + bodyLine
   }

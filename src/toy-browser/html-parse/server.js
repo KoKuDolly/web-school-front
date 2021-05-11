@@ -13,7 +13,6 @@ const str = `<!DOCTYPE html>
 
 <body>
     <div>
-        <div id="app" class="my-class"></div>
     </div>
     <script src="./index.js"></script>
 </body>
