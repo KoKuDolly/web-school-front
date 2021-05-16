@@ -135,6 +135,7 @@ function emit(token) {
     element.parent = top // 对偶操作
 
     if (!token.isSelfClosing) {
+      // 自封闭标签不需要校验闭合时候的 tagname 的正确性，所以不需要执行入栈和出栈的操作
       stack.push(element)
     }
 
@@ -350,7 +351,7 @@ function UnquotedAttributeValue(c) {
   }
 }
 
-function selfClosingStartTag() {
+function selfClosingStartTag(c) {
   if (c === '>') {
     currentToken.isSelfClosing = true
     emit(currentToken)
@@ -367,4 +368,5 @@ module.exports.parseHTML = function parseHTML(html) {
     state = state(c)
   }
   state = state(EOF)
+  return stack[0]
 }
