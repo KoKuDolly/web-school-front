@@ -45,7 +45,6 @@ class Request {
         if (parser.isFinished) {
           resolve(parser.response)
         }
-        console.log(parser.isFinished, 'finish')
         connection.end()
       })
       connection.on('error', (err) => {
@@ -211,7 +210,8 @@ void (async function () {
 
   let response = await request.send()
 
-  console.log(response, 'response')
+  // console.log(response.body)
+  // console.log('response')
   let dom = parser.parseHTML(response.body)
   console.log(dom)
 })().catch((err) => {

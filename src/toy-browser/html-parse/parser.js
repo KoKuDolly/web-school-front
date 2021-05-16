@@ -190,7 +190,7 @@ function tagOpen(c) {
     return tagName(c)
   } else {
     emit({ type: 'text', content: c })
-    return
+    return data
   }
 }
 
@@ -353,6 +353,7 @@ function UnquotedAttributeValue(c) {
 function selfClosingStartTag() {
   if (c === '>') {
     currentToken.isSelfClosing = true
+    emit(currentToken)
     return data
   } else if (c === EOF) {
   } else {
