@@ -5,6 +5,12 @@ const str = `<!DOCTYPE html>
 
 <head>
 		<style>
+      .flex {
+        display: flex;
+      }
+      .flex img {
+        flex: 1;
+      }
 			body div #myid {
 				width: 100px;
 				background: red;
@@ -17,7 +23,7 @@ const str = `<!DOCTYPE html>
 </head>
 
 <body>
-    <div>
+    <div class="flex">
 			<img id="myid" />
 			<img />
 		</div>

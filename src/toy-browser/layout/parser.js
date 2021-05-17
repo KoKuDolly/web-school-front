@@ -140,10 +140,14 @@ function emit(token) {
     if (!token.isSelfClosing) {
       // 自封闭标签不需要校验闭合时候的 tagname 的正确性，所以不需要执行入栈和出栈的操作
       stack.push(element)
+    } else {
+      // 自闭合标签要直接layout
+      layout(top)
     }
 
     currentTextNode = null
   } else if (token.type === 'endTag') {
+    // end
     if (top.tagName !== token.tagName) {
       throw new Error("Tag start end doesn't match!")
     } else {
