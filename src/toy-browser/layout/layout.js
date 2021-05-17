@@ -108,6 +108,64 @@ function layout(element) {
 		crossBase = 0
 		crossSign = +1
 	}
+
+	var isAutoMainSize = false
+	if (!style[mainSize]) {
+		elementStyle[mainSize] = 0
+		for (var i = 0; i < items.length; i++) {
+			var item = item[i]
+			if (itemStyle[mainSize] !== null || itemStyle[mainSize] !== (void 0)) {
+				elementStyle[mainSize] = elementStyle[mainSize] + itemStyle[mainSize]
+			}
+		}
+		isAutoMainSize = true
+	}
+
+	var flexLine = []
+	var flexLines = [flexLine]
+	var mainSpace = elementStyle[mainSize]
+	var crossSpace = 0
+	for (var i = 0; i < items.length; i++) {
+		var item = item[i]
+		var itemStyle = getStyle(item)
+		if (itemStyle[mainSize] === null) {
+			itemStyle[mainSize] = 0
+		}
+
+		if (itemStyle.flex) {
+			flexLine.push(item)
+		} else if (style.flexWrap === 'nowrap' && isAutoMainSize) {
+			mainSpace -= itemStyle[mainSize]
+			if (itemStyle[crossSize] !== null && itemStyle[crossSize] !== (void 0)) {
+				crossSpace = Math.max(crossSpace, itemStyle[crossSize])
+				flexLine.push(item)
+			}
+		} else {
+			if (itemStyle[mainSize] > style[mainSize]) {
+				itemStyle[mainSize] = style[mainSize]
+			}
+			if (mainSpace < itemStyle[mainSize]) {
+				flexLine.mainSpace = mainSpace
+				flexLine.crossSpace = crossSpace
+
+				flexLine = []
+				flexLines.push(flexLine)
+				flexLine.push(item)
+				mainSpace = style[mainSize]
+				crossSpace = 0
+			} else {
+				flexLine.push(item)
+			}
+
+			if (itemStyle[crossSize] !== null && itemStyle[crossSize] !== (void 0)) {
+				crossSpace = Math.max(crossSpace, itemStyle[crossSize])
+			}
+
+			mainSpace -= itemStylep[mainSize]
+		}
+	}
+	flexLine.mainSpace = mainSpace
+	console.log(item)
 }
 
 module.exports = layout
