@@ -1,10 +1,13 @@
+const EOF = Symbol('EOF')
 const css = require('css')
 const layout = require('./layout.js')
 // 词法分析
 let currentToken = null
+// 属性
 let currentAttribute = null
+// 文本
 let currentTextNode = null
-
+// dom树
 let stack = [{ type: 'document', children: [] }]
 
 let rules = []
@@ -163,8 +166,6 @@ function emit(token) {
     currentTextNode.content += token.content
   }
 }
-
-const EOF = Symbol('EOF')
 
 function data(c) {
   if (c === '<') {

@@ -9,11 +9,32 @@ const str = `<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
     <link rel="stylesheet" href="./index.css" />
+		<style>
+			div #foo {
+				width: 100px;
+				height: 20px;
+				font-size: 14px;
+			}
+			div .class1 {
+				color: red;
+				background: yellow;
+				width: 20px;
+			}
+			#id2 {
+				width: 100px;
+				height: 50px;
+				background: blue;
+			}
+		</style>
 </head>
 
 <body>
     <div>
-    </div>
+			<div id="foo" class="class1">
+				div1
+			</div>
+		</div>
+		<div id = "id2" class = "class2">d iv2</div>
     <script src="./index.js"></script>
 </body>
 
