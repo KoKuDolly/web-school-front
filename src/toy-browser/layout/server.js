@@ -4,25 +4,13 @@ const str = `<!DOCTYPE html>
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link rel="stylesheet" href="./index.css" />
 		<style>
-			div #foo {
+			body div #myid {
 				width: 100px;
-				height: 20px;
-				font-size: 14px;
+				background: red;
 			}
-			div .class1 {
-				color: red;
-				background: yellow;
-				width: 20px;
-			}
-			#id2 {
-				width: 100px;
-				height: 50px;
+			body div img {
+				width: 30px;
 				background: blue;
 			}
 		</style>
@@ -30,12 +18,9 @@ const str = `<!DOCTYPE html>
 
 <body>
     <div>
-			<div id="foo" class="class1">
-				div1
-			</div>
+			<img id="myid" />
+			<img />
 		</div>
-		<div id = "id2" class = "class2">d iv2</div>
-    <script src="./index.js"></script>
 </body>
 
 </html>`
