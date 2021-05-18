@@ -121,9 +121,9 @@ function layout(element) {
   if (!style[mainSize]) {
     elementStyle[mainSize] = 0
     for (var i = 0; i < items.length; i++) {
-      var item = item[i]
+      var item = items[i]
       var itemStyle = getStyle(item)
-      if (itemStyle[mainSize] !== null || itemStyle[mainSize] !== void 0) {
+      if (itemStyle[mainSize] !== null && itemStyle[mainSize] !== void 0) {
         elementStyle[mainSize] = elementStyle[mainSize] + itemStyle[mainSize]
       }
     }
@@ -135,7 +135,7 @@ function layout(element) {
   var mainSpace = elementStyle[mainSize]
   var crossSpace = 0
   for (var i = 0; i < items.length; i++) {
-    var item = item[i]
+    var item = items[i]
     var itemStyle = getStyle(item)
     if (itemStyle[mainSize] === null) {
       itemStyle[mainSize] = 0
@@ -220,7 +220,7 @@ function layout(element) {
           var itemStyle = getStyle(item)
 
           if (itemStyle.flex) {
-            itemStyle[mainSize] = (mainSpace / flexTotal) * itemStyle.flex
+            itemStyle[mainSize] = (itemStyle.flex / flexTotal) * mainSpace
           }
           itemStyle[mainStart] = currentMain
           itemStyle[mainEnd] =
@@ -346,11 +346,11 @@ function layout(element) {
         itemStyle[crossEnd] =
           crossBase +
           crossSign *
-            (itemStyle[crossSize] !== null && itemstyle[crossSize] !== void 0
+            (itemStyle[crossSize] !== null && itemStyle[crossSize] !== void 0
               ? itemstyle[crossSize]
               : lineCrossSize)
         itemStyle[crossSize] =
-          crossSign * (itemstyle[crossEnd] - itemstyle[crossStart])
+          crossSign * (itemStyle[crossEnd] - itemStyle[crossStart])
       }
     }
     crossBase += crossSign * (lineCrossSize + step)
