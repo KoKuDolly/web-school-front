@@ -1,22 +1,19 @@
 <pre>
 <script>
 
+    class XregExp {
+        constructor() {}
+        get lastIndex () {}
+        set lastIndex (value) {}
+        exec() {}
+    }
+
 	function compileRegExp(xregexp, name) {
 		if (xregexp[name] instanceof RegExp) return xregexp[name].source
 		let regexp = xregexp[name].replace(/\<([^\>\<]+)\>/g, function (str, $1) {
 			return compileRegExp(xregexp, $1)
 		})
 		return regexp
-		// console.log(xregexp[name].source)
-		// if(xregexp[name]) {
-		// 	return xregexp[name].source.replace(/\<([^\>\<]+)\>/g, function(str, $1) {
-		// 		console.log($1)
-		// 		return compileRegExp(xregexp, $1)
-		// 	})
-		// } else {
-		// 	return name
-		// }
-		
 	}
 
 	let regexp = compileRegExp({
@@ -35,14 +32,12 @@
 		Punctuator: /\+\+|\+|\;|\?|\<|\=|\(|\)|\{|\}|\*|\.|\:|\[|\]|\=\>/
 	}, 'InputElement')
 
-	// console.log(regexp)
 
 	function scan(str) {
 		let _regexp = new RegExp(regexp, 'g')
 		while (_regexp.lastIndex + 1 < str.length) {
 			let r = _regexp.exec(str)
 			document.write(r[0])
-			// console.log(r, _regexp.lastIndex, str.length) // r.index 367 _regexp.lastIndex 368 str.length 369
 		}
 	}
 
