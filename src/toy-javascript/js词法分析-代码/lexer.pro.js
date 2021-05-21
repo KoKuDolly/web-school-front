@@ -2,7 +2,7 @@ class XRegExp {
   constructor(source, flag, root = 'root') {
     this.table = new Map()
     this.regexp = new RegExp(this.compileRegExp(source, root, 0).source, flag)
-    console.log(this.table, this.regexp)
+    console.log(this.regexp)
   }
   compileRegExp(source, name, start) {
     if (source[name] instanceof RegExp)
@@ -25,7 +25,7 @@ class XRegExp {
   }
   exec(string) {
     let r = this.regexp.exec(string)
-    // console.log(r)
+    // console.log(this.regexp)
     for (let i = 1; i < r.length; i++) {
       if (r[i] !== void 0) {
         r[this.table.get(i - 1)] = r[i]
@@ -47,13 +47,13 @@ function scan(str) {
       InputElement: '<Whitespace>|<LineTerminator>|<Comments>|<Token>',
       Whitespace: / |\t/,
       LineTerminator: /\n/,
-      Comments: /\/\*([^*]|\*[^\/])*\*\/|\/\/[^\n]*/,
+      Comments: /\/\*(?:[^*]|\*[^\/])*\*\/|\/\/[^\n]*/,
       Token: '<Literal>|<Keywords>|<Identifer>|<Punctuator>',
       Literal:
         '<NumericLiteral>|<BooleanLiteral>|<StringLiteral>|<NullLiteral>',
-      NumericLiteral: /([1-9][0-9]*|0)\.[0-9]*|\.[0-9]+|[0-9]+/,
+      NumericLiteral: /(?:[1-9][0-9]*|0)\.[0-9]*|\.[0-9]+|[0-9]+/,
       BooleanLiteral: /true|false/,
-      StringLiteral: /\"([^\"\n]|\\[\s\S])*\"|\'([^\'\n]|\\[\s\S])*\'/,
+      StringLiteral: /\"(?:[^\"\n]|\\[\s\S])*\"|\'(?:[^\'\n]|\\[\s\S])*\'/,
       NullLiteral: /null/,
       Identifer: /[a-zA-Z_$][a-zA-Z_$0-9]*/,
       Keywords: /if|else|for|function|let/,
