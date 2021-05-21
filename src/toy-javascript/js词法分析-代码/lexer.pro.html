@@ -4,7 +4,7 @@
 	class XRegExp {
 		constructor(source, flag, root = 'root') {
 			this.table = new Map()
-			this.regexp = new RegExp(this.compileRegExp(source, root, 0), flag)
+			this.regexp = new RegExp(this.compileRegExp(source, root, 0).source, flag)
 		}
 		compileRegExp(source, name, start) {
 			if (source[name] instanceof RegExp) return {
@@ -17,7 +17,7 @@
 				++length
 				let r = this.compileRegExp(source, $1, start + length)
 				length += r.length
-				return r.source
+				return '(' + r.source + ')'
 			})
 			return {
 				source: regexp,
@@ -62,7 +62,7 @@
 		while (_regexp.lastIndex + 1 < str.length) {
 			let r = _regexp.exec(str)
 			// document.write(r[0])
-			// console.log(r)
+			console.log(r)
 		}
 	}
 
