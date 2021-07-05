@@ -1,3 +1,4 @@
+import { scan } from './LexParser.js'
 // ll lr
 // 终结符 非终结符
 // 词法 token   语法 terminal symbol 联系起来
@@ -25,7 +26,7 @@ let syntax = {
   PrimaryExpression: [['(', 'Expression', ')'], ['Literal'], ['Identifier']],
   Literal: [['Number']],
   IfStatement: [['if', '(', 'Expression', ')', 'Statement']],
-  VariableDeclaration: [['var', 'Identifier']],
+  VariableDeclaration: [['var', 'Identifier', ';']],
   FunctionDeclaration: [
     ['function', 'Identifier', '(', ')', '{', 'StatementList', '}'],
   ],
@@ -38,12 +39,15 @@ function closure(state) {
   hash[JSON.stringify(state)] = state
   let queue = []
   for (let symbol in state) {
+    if (symbol.match(/^\$/)) {
+      return
+    }
     queue.push(symbol)
   }
   // 展开一层 closure
   while (queue.length) {
     let symbol = queue.shift()
-    console.log(symbol)
+    // console.log(symbol)
     if (syntax[symbol]) {
       for (let rule of syntax[symbol]) {
         if (!state[rule[0]]) {
@@ -57,12 +61,16 @@ function closure(state) {
           }
           current = current[part] // 前进一步
         }
-        current.$isRuleEnd = true
+        current.$reduceType = symbol
+        current.$reduceLength = rule.length
       }
     }
   }
   // 展开所有层 closure
   for (let symbol in state) {
+    if (symbol.match(/^$/)) {
+      return
+    }
     if (!hash[JSON.stringify(state[symbol])]) {
       closure(state[symbol])
     } else {
@@ -79,3 +87,50 @@ let start = {
 }
 
 closure(start)
+
+let source = `
+ let a;
+`
+
+function parse(source) {
+  let stack = [start]
+  let symbolStack = []
+
+  function shift(symbol) {
+    let state = stack[stack.length - 1]
+    if (symbol.type in state) {
+      stack.push(state[symbol.type])
+      symbolStack.push(symbol)
+    } else {
+      /* reduce to no terminal symbol */
+      // 编译原理里叫 reduce terminal symbol 到 not terminal symbol的过程
+      shift(reduce())
+      shift(symbol)
+    }
+  }
+
+  function reduce() {
+    let state = stack[stack.length - 1]
+    if (state.$reduceType) {
+      let children = []
+      for (let i = 0; i < state.$reduceLength; i++) {
+        stack.pop()
+        children.push(symbolStack.pop())
+      }
+      return {
+        type: state.$reduceType,
+        children: children.reverse(),
+      }
+    } else {
+      throw new Error('unexpected token')
+    }
+  }
+
+  for (let symbol /* terminal symbol */ of scan(source)) {
+    console.log(symbol)
+    shift(symbol)
+  }
+  reduce()
+}
+
+parse(source)

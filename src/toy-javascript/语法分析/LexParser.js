@@ -2,7 +2,7 @@ class XRegExp {
   constructor(source, flag, root = 'root') {
     this.table = new Map()
     this.regexp = new RegExp(this.compileRegExp(source, root, 0).source, flag)
-    console.log(this.regexp)
+    // console.log(this.regexp)
   }
   compileRegExp(source, name, start) {
     if (source[name] instanceof RegExp)
@@ -41,21 +41,21 @@ class XRegExp {
   }
 }
 
-function* scan(str) {
+export function* scan(str) {
   let _regexp = new XRegExp(
     {
       InputElement: '<Whitespace>|<LineTerminator>|<Comments>|<Token>',
       Whitespace: / |\t/,
       LineTerminator: /\n/,
       Comments: /\/\*(?:[^*]|\*[^\/])*\*\/|\/\/[^\n]*/,
-      Token: '<Literal>|<Keywords>|<Identifer>|<Punctuator>',
+      Token: '<Literal>|<Keywords>|<Identifier>|<Punctuator>',
       Literal:
         '<NumericLiteral>|<BooleanLiteral>|<StringLiteral>|<NullLiteral>',
       NumericLiteral: /(?:[1-9][0-9]*|0)\.[0-9]*|\.[0-9]+|[0-9]+/,
       BooleanLiteral: /true|false/,
       StringLiteral: /\"(?:[^\"\n]|\\[\s\S])*\"|\'(?:[^\'\n]|\\[\s\S])*\'/,
       NullLiteral: /null/,
-      Identifer: /[a-zA-Z_$][a-zA-Z_$0-9]*/,
+      Identifier: /[a-zA-Z_$][a-zA-Z_$0-9]*/,
       Keywords: /if|else|for|function|let/,
       Punctuator: /\+\+|\+|\;|\?|\<|\=|\(|\)|\{|\}|\*|\.|\:|\[|\]|\=\>/,
     },
@@ -63,12 +63,8 @@ function* scan(str) {
     'InputElement'
   )
   while (_regexp.lastIndex + 1 < str.length) {
-    // console.log(_regexp.lastIndex)
     let r = _regexp.exec(str)
-    // document.write(r[0])
-    // console.log(r, 1)
-    // console.log(r)
-    // yield r
+
     if (r.Whitespace) {
     } else if (r.LineTerminator) {
     } else if (r.Comments) {
@@ -92,9 +88,9 @@ function* scan(str) {
         type: 'NullLiteral',
         value: null,
       }
-    } else if (r.Identifer) {
+    } else if (r.Identifier) {
       yield {
-        type: 'Identifer',
+        type: 'Identifier',
         value: r[0],
       }
     } else if (r.Keywords) {
@@ -114,19 +110,19 @@ function* scan(str) {
   }
 }
 
-let source = `
-	for (let i = 0; i < 13; i++) {
-		for (let j = 0; j < 3; j++) {
-			let cell = document.createElement('div')
-			cell.classList.add('cell')
-			cell.innerText = pattern[i * 3 + j] === 2 ? "x" : pattern[i * 3 + j] === 1 ? 'o' : ''
-			cell.addEventListener('click', () => userMove(j, i))
-			board.appendChild(cell)
-		}
-		board.appendChild(document.createElement('br'))
-	}
-	`
+// let source = `
+// 	for (let i = 0; i < 13; i++) {
+// 		for (let j = 0; j < 3; j++) {
+// 			let cell = document.createElement('div')
+// 			cell.classList.add('cell')
+// 			cell.innerText = pattern[i * 3 + j] === 2 ? "x" : pattern[i * 3 + j] === 1 ? 'o' : ''
+// 			cell.addEventListener('click', () => userMove(j, i))
+// 			board.appendChild(cell)
+// 		}
+// 		board.appendChild(document.createElement('br'))
+// 	}
+// 	`
 
-for (let element of scan(source)) {
-  console.log(element)
-}
+// for (let element of scan(source)) {
+//   console.log(element)
+// }
