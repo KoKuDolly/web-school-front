@@ -67,8 +67,50 @@ function* scan(str) {
     let r = _regexp.exec(str)
     // document.write(r[0])
     // console.log(r, 1)
-    console.log(r)
-    yield r
+    // console.log(r)
+    // yield r
+    if (r.Whitespace) {
+    } else if (r.LineTerminator) {
+    } else if (r.Comments) {
+    } else if (r.NumericLiteral) {
+      yield {
+        type: 'NumericLiteral',
+        value: r[0],
+      }
+    } else if (r.BooleanLiteral) {
+      yield {
+        type: 'BooleanLiteral',
+        value: r[0],
+      }
+    } else if (r.StringLiteral) {
+      yield {
+        type: 'StringLiteral',
+        value: r[0],
+      }
+    } else if (r.NullLiteral) {
+      yield {
+        type: 'NullLiteral',
+        value: null,
+      }
+    } else if (r.Identifer) {
+      yield {
+        type: 'Identifer',
+        value: r[0],
+      }
+    } else if (r.Keywords) {
+      yield {
+        type: r[0],
+      }
+    } else if (r.Punctuator) {
+      yield {
+        type: r[0],
+      }
+    } else {
+      throw new Error('unexpected token' + r[0])
+    }
+    yield {
+      type: 'EOF',
+    }
   }
 }
 

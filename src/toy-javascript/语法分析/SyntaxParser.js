@@ -1,6 +1,6 @@
 // ll lr
 // 终结符 非终结符
-// token   terminal symbol
+// 词法 token   语法 terminal symbol 联系起来
 let syntax = {
   Program: [['StatementList', 'EOF']],
   StatementList: [['Statement'], ['StatementList', 'Statement']],
@@ -40,7 +40,7 @@ function closure(state) {
   for (let symbol in state) {
     queue.push(symbol)
   }
-  // 展开一层closure
+  // 展开一层 closure
   while (queue.length) {
     let symbol = queue.shift()
     console.log(symbol)
@@ -61,7 +61,7 @@ function closure(state) {
       }
     }
   }
-
+  // 展开所有层 closure
   for (let symbol in state) {
     if (!hash[JSON.stringify(state[symbol])]) {
       closure(state[symbol])
