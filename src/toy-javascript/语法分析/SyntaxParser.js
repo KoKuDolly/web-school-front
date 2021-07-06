@@ -26,7 +26,7 @@ let syntax = {
   PrimaryExpression: [['(', 'Expression', ')'], ['Literal'], ['Identifier']],
   Literal: [['Number']],
   IfStatement: [['if', '(', 'Expression', ')', 'Statement']],
-  VariableDeclaration: [['var', 'Identifier', ';']],
+  VariableDeclaration: [['let', 'Identifier', ';']],
   FunctionDeclaration: [
     ['function', 'Identifier', '(', ')', '{', 'StatementList', '}'],
   ],
@@ -68,7 +68,7 @@ function closure(state) {
   }
   // 展开所有层 closure
   for (let symbol in state) {
-    if (symbol.match(/^$/)) {
+    if (symbol.match(/^\$/)) {
       return
     }
     if (!hash[JSON.stringify(state[symbol])]) {
@@ -88,26 +88,9 @@ let start = {
 
 closure(start)
 
-let source = `
- let a;
-`
-
 function parse(source) {
   let stack = [start]
   let symbolStack = []
-
-  function shift(symbol) {
-    let state = stack[stack.length - 1]
-    if (symbol.type in state) {
-      stack.push(state[symbol.type])
-      symbolStack.push(symbol)
-    } else {
-      /* reduce to no terminal symbol */
-      // 编译原理里叫 reduce terminal symbol 到 not terminal symbol的过程
-      shift(reduce())
-      shift(symbol)
-    }
-  }
 
   function reduce() {
     let state = stack[stack.length - 1]
@@ -126,11 +109,68 @@ function parse(source) {
     }
   }
 
+  function shift(symbol) {
+    let state = stack[stack.length - 1]
+
+    if (symbol.type in state) {
+      stack.push(state[symbol.type])
+      symbolStack.push(symbol)
+    } else {
+      /* reduce to no terminal symbol */
+      // 编译原理里叫 reduce terminal symbol 到 not terminal symbol的过程
+      shift(reduce())
+      shift(symbol)
+    }
+  }
+
   for (let symbol /* terminal symbol */ of scan(source)) {
-    console.log(symbol)
+    // console.log(symbol)
     shift(symbol)
   }
-  reduce()
+  // reduce()
+  // console.log(reduce())
+  return reduce()
 }
 
-parse(source)
+let evaluator = {
+  Program(node) {
+    return evaluate(node.children[0])
+  },
+  StatementList(node) {
+    if (node.children.length === 1) {
+      return evaluate(node.children[0])
+    } else {
+      evaluate(node.children[0])
+      return evaluate(node.children[1])
+    }
+  },
+  Statement(node) {
+    // ['ExpressionStatement'],
+    // ['IfStatement'],
+    // ['VariableDeclaration'],
+    // ['FunctionDeclaration'],
+    return evaluate(node.children[0])
+  },
+  VariableDeclaration(node) {
+    console.log('Declare variable', node.children[1])
+  },
+  EOF() {
+    return null
+  },
+}
+function evaluate(node) {
+  if (evaluator[node.type]) {
+    return evaluator[node.type](node)
+  }
+}
+
+////////////////////////////////////
+
+let source = `
+ let a;
+`
+
+let tree = parse(source)
+// console.log(tree)
+
+evaluate(tree)

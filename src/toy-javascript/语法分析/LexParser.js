@@ -64,6 +64,7 @@ export function* scan(str) {
   )
   while (_regexp.lastIndex + 1 < str.length) {
     let r = _regexp.exec(str)
+    // console.log(r)
 
     if (r.Whitespace) {
     } else if (r.LineTerminator) {
@@ -91,7 +92,7 @@ export function* scan(str) {
     } else if (r.Identifier) {
       yield {
         type: 'Identifier',
-        value: r[0],
+        name: r[0],
       }
     } else if (r.Keywords) {
       yield {
@@ -104,9 +105,11 @@ export function* scan(str) {
     } else {
       throw new Error('unexpected token' + r[0])
     }
-    yield {
-      type: 'EOF',
-    }
+
+    // if (!r[0].length) break
+  }
+  yield {
+    type: 'EOF',
   }
 }
 
