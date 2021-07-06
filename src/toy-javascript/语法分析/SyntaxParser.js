@@ -24,7 +24,13 @@ let syntax = {
     ['MultiplicativeExpression', '/', 'PrimaryExpression'],
   ],
   PrimaryExpression: [['(', 'Expression', ')'], ['Literal'], ['Identifier']],
-  Literal: [['Number']],
+  Literal: [
+    ['Number'],
+    ['String'],
+    ['Boolean'],
+    ['Null'],
+    ['RegularExpression'],
+  ],
   IfStatement: [['if', '(', 'Expression', ')', 'Statement']],
   VariableDeclaration: [['let', 'Identifier', ';']],
   FunctionDeclaration: [
