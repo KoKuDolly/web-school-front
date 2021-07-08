@@ -258,7 +258,7 @@ let evaluator = {
   },
 }
 
-// 语义分析
+// 语义分析 evaluate ==> eval ???
 function evaluate(node) {
   if (evaluator[node.type]) {
     return evaluator[node.type](node)
@@ -267,9 +267,11 @@ function evaluate(node) {
 
 ////////////////////////////////////
 
-let source = "'a\\nc'"
+let source = "'a\\nc'" // TODO js 外套了一层js的字符串解析，放在html中就没有js的二重转义了? 如何理解
 
 let tree = parse(source)
 // console.log(tree)
 
 evaluate(tree)
+
+// document.evaluate() 是个浏览器实现的一个方法，用于处理 xpath，挂在到window上会有冲突，所以包一个命名空间就好了。
