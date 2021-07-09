@@ -12,7 +12,11 @@ let syntax = {
     ['FunctionDeclaration'],
   ],
   ExpressionStatement: [['Expression', ';']],
-  Expression: [['AdditiveExpression']],
+  Expression: [['AssignmentExpression']],
+  AssignmentExpression: [
+    ['Identifier', '=', 'AssignmentExpression'],
+    ['AdditiveExpression'],
+  ],
   AdditiveExpression: [
     ['MultiplicativeExpression'],
     ['AdditiveExpression', '+', 'MultiplicativeExpression'],
@@ -57,7 +61,7 @@ function closure(state) {
   let queue = []
   for (let symbol in state) {
     if (symbol.match(/^\$/)) {
-      return
+      continue
     }
     queue.push(symbol)
   }
@@ -86,7 +90,7 @@ function closure(state) {
   // 展开所有层 closure
   for (let symbol in state) {
     if (symbol.match(/^\$/)) {
-      return
+      continue
     }
     if (!hash[JSON.stringify(state[symbol])]) {
       closure(state[symbol])
@@ -111,7 +115,7 @@ function parse(source) {
 
   function reduce() {
     let state = stack[stack.length - 1]
-    console.log(state)
+    // console.log(state)
     if (state.$reduceType) {
       let children = []
       for (let i = 0; i < state.$reduceLength; i++) {
@@ -149,6 +153,51 @@ function parse(source) {
   return reduce()
 }
 
+class Realm {
+  constructor() {
+    this.global = new Map()
+    this.Object = new Map()
+    this.Object.call = function () {}
+    this.Object_prototype = new Map()
+  }
+}
+
+class EnvironmentRecord {
+  constructor() {
+    this.thisValue
+    this.variables = new Map()
+    this.outer = null
+  }
+}
+
+class ExecutionContext {
+  constructor() {
+    this.lexicalEnvironment = {}
+    this.variableEnvironment = this.lexicalEnvironment
+    this.realm = {
+      global: {},
+      Object: {},
+      Object_prototype: {},
+    }
+  }
+  // LexicalEnvironment: {a: 1, b: 2}
+}
+
+// 7 种基本类型外，运行时存在的类型
+class Reference {
+  constructor(object, property) {
+    this.object = object
+    this.property = property
+  }
+  set(value) {
+    this.object[this.property] = value
+  }
+
+  get() {
+    return this.object[this.property]
+  }
+}
+
 let evaluator = {
   Program(node) {
     return evaluate(node.children[0])
@@ -165,7 +214,9 @@ let evaluator = {
     return evaluate(node.children[0])
   },
   VariableDeclaration(node) {
-    console.log('Declare variable', node.children[1])
+    // console.log('Declare variable', node.children[1])
+    let runningEC = ecs[ecs.length - 1]
+    return runningEC.variableEnvironment[node.children[1].name]
   },
   ExpressionStatement(node) {
     return evaluate(node.children[0])
@@ -297,10 +348,29 @@ let evaluator = {
       writable: true,
     })
   },
+  AssignmentExpression(node) {
+    if (node.children.length === 1) {
+      return evaluate(node.children[0])
+    }
+    let left = evaluate(node.children[0])
+    let right = evaluate(node.children[2])
+    left.set(right)
+  },
+  Identifier(node) {
+    // 唯一标识符
+    let runningEC = ecs[ecs.length - 1] // 运行时取栈顶的运行上下文
+    return new Reference(runningEC.lexicalEnvironment, node.name)
+    // 通过Reference类型，获取当前环境的指定标识符
+    // return runningEC.lexicalEnvironment[node.name] 是草率的做法，只能获取，不能写，例如let a = b，b是可读，a是可写。
+  },
   EOF() {
     return null
   },
 }
+
+let realm = new Realm()
+// stack
+let ecs = [new ExecutionContext()]
 
 // 语义分析 evaluate ==> eval ???
 function evaluate(node) {
