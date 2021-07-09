@@ -29,7 +29,18 @@ let syntax = {
     ['StringLiteral'],
     ['BooleanLiteral'],
     ['NullLiteral'],
-    ['RegularExpression'],
+    ['RegularExpressionLiteral'],
+    ['ObjectLiteral'],
+    ['ArrayLiteral'],
+  ],
+  ObjectLiteral: [
+    ['{', '}'],
+    ['{', 'PropertyList', '}'],
+  ],
+  PropertyList: [['Property'], ['PropertyList', ',', 'Property']],
+  Property: [
+    ['StringLiteral', ':', 'AdditiveExpression'],
+    ['Identifier', ':', 'AdditiveExpression'],
   ],
   IfStatement: [['if', '(', 'Expression', ')', 'Statement']],
   VariableDeclaration: [['let', 'Identifier', ';']],
@@ -100,6 +111,7 @@ function parse(source) {
 
   function reduce() {
     let state = stack[stack.length - 1]
+    console.log(state)
     if (state.$reduceType) {
       let children = []
       for (let i = 0; i < state.$reduceLength; i++) {
@@ -130,7 +142,6 @@ function parse(source) {
   }
 
   for (let symbol /* terminal symbol */ of scan(source)) {
-    // console.log(symbol)
     shift(symbol)
   }
   // reduce()
@@ -151,10 +162,6 @@ let evaluator = {
     }
   },
   Statement(node) {
-    // ['ExpressionStatement'],
-    // ['IfStatement'],
-    // ['VariableDeclaration'],
-    // ['FunctionDeclaration'],
     return evaluate(node.children[0])
   },
   VariableDeclaration(node) {
@@ -221,7 +228,7 @@ let evaluator = {
     return Number(node.value)
   },
   StringLiteral(node) {
-    console.log(node)
+    // console.log(node)
     let result = []
     for (let i = 1; i < node.value.length - 1; i++) {
       if (node.value[i] === '\\') {
@@ -253,8 +260,45 @@ let evaluator = {
         result.push(node.value[i])
       }
     }
-    console.log(result)
+    // console.log(result)
     return result.join('')
+  },
+  ObjectLiteral(node) {
+    if (node.children.length === 2) {
+      return {}
+    }
+    if (node.children.length === 3) {
+      let object = new Map()
+      this.PropertyList(node.children[1], object)
+      // object.prototype
+      return object
+    }
+  },
+  PropertyList(node, object) {
+    if (node.children.length === 1) {
+      this.Property(node.children[0], object)
+    } else {
+      this.PropertyList(node.children[0], object)
+      this.Property(node.children[2], object)
+    }
+  },
+  Property(node, object) {
+    let name
+    if (node.children[0].type === 'Identifier') {
+      name = node.children[0].name
+    }
+    if (node.children[0].type === 'StringLiteral') {
+      name = evaluate(node.children[0])
+    }
+    object.set(name, {
+      value: evaluate(node.children[2]),
+      enumerable: true,
+      configurable: true,
+      writable: true,
+    })
+  },
+  EOF() {
+    return null
   },
 }
 
@@ -267,11 +311,18 @@ function evaluate(node) {
 
 ////////////////////////////////////
 
-let source = "'a\\nc'" // TODO js 外套了一层js的字符串解析，放在html中就没有js的二重转义了? 如何理解
+// let source = `
+//  'a\\nb';
+// ` // TODO js 外套了一层js的字符串解析，放在html中就没有js的二重转义了? 如何理解
 
-let tree = parse(source)
-// console.log(tree)
+// let tree = parse(source)
+// // console.log(tree)
 
-evaluate(tree)
+// evaluate(tree)
 
 // document.evaluate() 是个浏览器实现的一个方法，用于处理 xpath，挂在到window上会有冲突，所以包一个命名空间就好了。
+
+window.js = {
+  evaluate,
+  parse,
+}
