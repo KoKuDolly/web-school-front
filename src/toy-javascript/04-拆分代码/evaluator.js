@@ -1,4 +1,17 @@
-import { ExecutionContext, Reference, Realm } from './runtime.js'
+import {
+  ExecutionContext,
+  Reference,
+  Realm,
+  JSValue,
+  JSNumber,
+  JSString,
+  JSBoolean,
+  JSNull,
+  JSUndefined,
+  JSObject,
+  JSSymbol,
+  CompletionRecord,
+} from './runtime.js'
 
 export class Evaluator {
   constructor() {
@@ -22,8 +35,9 @@ export class Evaluator {
     if (node.children.length === 1) {
       return this.evaluate(node.children[0])
     } else {
-      this.evaluate(node.children[0])
-      return this.evaluate(node.children[1])
+      let record = this.evaluate(node.children[0])
+      if (record.type === 'normal') return this.evaluate(node.children[1])
+      return record
     }
   }
   Statement(node) {
@@ -32,10 +46,11 @@ export class Evaluator {
   VariableDeclaration(node) {
     // console.log('Declare variable', node.children[1])
     let runningEC = this.ecs[this.ecs.length - 1]
-    return runningEC.variableEnvironment[node.children[1].name]
+    runningEC.variableEnvironment[node.children[1].name] = new JSUndefined()
+    return new CompletionRecord('normal', new JSUndefined())
   }
   ExpressionStatement(node) {
-    return this.evaluate(node.children[0])
+    return new CompletionRecord('normal', this.evaluate(node.children[0]))
   }
   Expression(node) {
     return this.evaluate(node.children[0])
@@ -44,7 +59,16 @@ export class Evaluator {
     if (node.children.length === 1) {
       return this.evaluate(node.children[0])
     } else {
-      // TODO
+      let left = this.evaluate(node.children[0])
+      let right = this.evaluate(node.children[2])
+      if (left instanceof Reference) left = left.get()
+      if (right instanceof Reference) right = right.get()
+      if (node.children[1].type === '+') {
+        return left + right
+      }
+      if (node.children[1].type === '-') {
+        return new JSNumber(left.value - right.value)
+      }
     }
   }
   MultiplicativeExpression(node) {
@@ -92,7 +116,7 @@ export class Evaluator {
       }
       value = value * n + c
     }
-    return Number(node.value)
+    return new JSNumber(node.value)
   }
   StringLiteral(node) {
     // console.log(node)
@@ -128,7 +152,15 @@ export class Evaluator {
       }
     }
     // console.log(result)
-    return result.join('')
+    // return result.join('')
+
+    return new JSString(result)
+  }
+  BooleanLiteral(node) {
+    return new JSBoolean(node.value)
+  }
+  NullLiteral() {
+    return new JSNull()
   }
   ObjectLiteral(node) {
     if (node.children.length === 2) {
@@ -209,6 +241,7 @@ export class Evaluator {
     if (node.children.length === 2) {
       let cls = this.evaluate(node.children[1])
       return cls.construct()
+      // new 执行的操作
       //   let object = this.realm.Object.construct()
       //   let cls = this.evaluate(node.children[1])
       //   let r = cls.call(object)
@@ -236,12 +269,49 @@ export class Evaluator {
       return obj.get([node.children[2].name])
     }
   }
+  IfStatement(node) {
+    let condition = this.evaluate(node.children[2])
+    let statement = this.evaluate(node.children[4])
+    if (condition instanceof Reference) {
+      condition = condition.get()
+    }
+    if (condition.toBoolean().value) {
+      return this.evaluate(statement)
+    }
+  }
+  WhileStatement(node) {
+    while (true) {
+      let condition = this.evaluate(node.children[2])
+      let statement = this.evaluate(node.children[4])
+      if (condition instanceof Reference) {
+        condition = condition.get()
+      }
+      if (condition.toBoolean().value) {
+        let record = this.evaluate(statement)
+        if (record.type === 'continue') continue
+        if (record.type === 'break') return new CompletionRecord('normal') // break 消费掉的时候，状态zhiwei normal
+      } else {
+        // break 消费掉的时候，状态zhiwei normal
+        return new CompletionRecord('normal')
+      }
+    }
+  }
+  BreakStatement() {
+    return new CompletionRecord('break')
+  }
+  ContinueStatement() {
+    return new CompletionRecord('continue')
+  }
   Identifier(node) {
     // 唯一标识符
     let runningEC = this.ecs[this.ecs.length - 1] // 运行时取栈顶的运行上下文
-    return new Reference(runningEC.lexicalEnvironment, node.name)
+    return new Reference(runningEC.lexicalEnvironment, node.name) // .get()
     // 通过Reference类型，获取当前环境的指定标识符
     // return runningEC.lexicalEnvironment[node.name] 是草率的做法，只能获取，不能写，例如let a = b，b是可读，a是可写。
+  }
+  Block(node) {
+    if (node.children.length === 2) return
+    return this.evaluate(node.children[1])
   }
   EOF() {
     return null

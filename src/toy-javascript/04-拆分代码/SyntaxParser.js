@@ -8,8 +8,18 @@ let syntax = {
   Statement: [
     ['ExpressionStatement'],
     ['IfStatement'],
+    ['WhileStatement'],
     ['VariableDeclaration'],
     ['FunctionDeclaration'],
+    ['Block'],
+    ['BreakStatement'],
+    ['ContinueStatement'],
+  ],
+  BreakStatement: [['break', ';']],
+  ContinueStatement: [['continue', ';']],
+  Block: [
+    ['{', '}'],
+    ['{', 'StatementList', '}'],
   ],
   ExpressionStatement: [['Expression', ';']],
   Expression: [['AssignmentExpression']],
@@ -67,6 +77,7 @@ let syntax = {
     ['Identifier', ':', 'AdditiveExpression'],
   ],
   IfStatement: [['if', '(', 'Expression', ')', 'Statement']],
+  WhileStatement: [['while', '(', 'Expression', ')', 'Statement']],
   VariableDeclaration: [['let', 'Identifier', ';']],
   FunctionDeclaration: [
     ['function', 'Identifier', '(', ')', '{', 'StatementList', '}'],
