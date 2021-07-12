@@ -11,23 +11,44 @@ export class EnvironmentRecord {
   constructor(outer) {
     this.outer = outer
     this.variables = new Map()
-    // this.thisValue
   }
   get(name) {
-    return this.variables.get(name)
+    if (this.variables.has(name)) {
+      return this.variables.get(name)
+    } else if (this.outer) {
+      return this.outer.get(name)
+    } else {
+      return new JSUndefined()
+    }
   }
   set(name, value = new JSUndefined()) {
-    this.variables.set(name, value)
+    if (this.variables.has(name)) {
+      this.variables.set(name, value)
+    } else if (this.outer) {
+      this.outer.set(name, value)
+    } else {
+      this.variables.set(name, value)
+    }
   }
   add(name) {
     this.variables.set(name, new JSUndefined())
   }
 }
 export class ObjectEnvironmentRecord {
-  constructor() {
-    this.thisValue
-    this.variables = new Map()
-    this.outer = null
+  constructor(object, outer) {
+    this.object = object
+    this.outer = outer
+  }
+  get(name) {
+    return this.object.get(name)
+    // TODO with statement needs outer
+  }
+  set(name, value = new JSUndefined()) {
+    this.object.set(name, value)
+    // TODO with statement needs outer
+  }
+  add(name) {
+    this.object.set(name, new JSUndefined())
   }
 }
 
@@ -128,11 +149,24 @@ export class JSObject extends JSValue {
     this.properties = new Map()
     this.prototype = null
   }
+  set(name, value) {
+    // TODO writeable
+    this.setProperty(name, {
+      value,
+      enumerable: true,
+      configurable: true,
+      writeable: true,
+    })
+  }
+  get(name) {
+    // TODO prototype chain && getter
+    return this.getProperty(name)
+  }
   setProperty(name, attributes) {
     this.properties.set(name, attributes)
   }
-  getProperty() {
-    // TODO
+  getProperty(name) {
+    return this.properties.get(name)
   }
   setPrototype(proto) {
     this.prototype = proto
@@ -176,11 +210,11 @@ export class Reference {
     this.property = property
   }
   set(value) {
-    this.object[this.property] = value
+    this.object.set(this.property, value)
   }
 
   get() {
-    return this.object[this.property]
+    return this.object.get(this.property)
   }
 }
 // 语句执行完，一定是一个三元组 return break continue throw label try

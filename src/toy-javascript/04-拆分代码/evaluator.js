@@ -11,14 +11,22 @@ import {
   JSObject,
   JSSymbol,
   CompletionRecord,
+  EnvironmentRecord,
+  ObjectEnvironmentRecord,
 } from './runtime.js'
 
 export class Evaluator {
   constructor() {
     this.realm = new Realm()
-    this.globalObject = {}
+    this.globalObject = new JSObject()
     // stack
-    this.ecs = [new ExecutionContext(this.realm, this.globalObject)]
+    this.ecs = [
+      new ExecutionContext(
+        this.realm,
+        new ObjectEnvironmentRecord(this.globalObject),
+        new ObjectEnvironmentRecord(this.globalObject)
+      ),
+    ]
   }
 
   // 语义分析 this.evaluate ==> eval ???
@@ -46,11 +54,17 @@ export class Evaluator {
   VariableDeclaration(node) {
     // console.log('Declare variable', node.children[1])
     let runningEC = this.ecs[this.ecs.length - 1]
-    runningEC.variableEnvironment[node.children[1].name] = new JSUndefined()
+    // runningEC.variableEnvironment[node.children[1].name] = new JSUndefined()
+    runningEC.variableEnvironment.add([
+      node.children[1].name,
+      new JSUndefined(),
+    ])
     return new CompletionRecord('normal', new JSUndefined())
   }
   ExpressionStatement(node) {
-    return new CompletionRecord('normal', this.evaluate(node.children[0]))
+    let r = this.evaluate(node.children[0])
+    if (r instanceof Reference) r = r.get()
+    return new CompletionRecord('normal', r)
   }
   Expression(node) {
     return this.evaluate(node.children[0])
@@ -64,7 +78,7 @@ export class Evaluator {
       if (left instanceof Reference) left = left.get()
       if (right instanceof Reference) right = right.get()
       if (node.children[1].type === '+') {
-        return left + right
+        return new JSNumber(left.value + right.value)
       }
       if (node.children[1].type === '-') {
         return new JSNumber(left.value - right.value)
