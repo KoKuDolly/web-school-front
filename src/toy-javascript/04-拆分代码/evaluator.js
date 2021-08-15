@@ -33,6 +33,18 @@ export class Evaluator {
     ]
   }
 
+  evaluateModule(node) {
+    let globalEC = this.ecs[0]
+    let newEC = new ExecutionContext(
+      this.realm,
+      new EnvironmentRecord(globalEC.lexicalEnvironment),
+      new EnvironmentRecord(globalEC.lexicalEnvironment)
+    )
+    this.ecs.push(newEC)
+    let result = this.evaluate(node)
+    this.ecs.pop()
+    return result
+  }
   // 语义分析 this.evaluate ==> eval ???
   evaluate(node) {
     if (this[node.type]) {
@@ -346,6 +358,27 @@ export class Evaluator {
       return this.evaluate(node.children[0]).concat(result)
     }
   }
+  FunctionDeclaration(node) {
+    let name = node.children[1].name
+    let code = node.children[node.children.length - 2]
+    let func = new JSObject()
+    func.call = (args) => {
+      // let runningEC = this.ecs[this.ecs.length - 1]
+      let newEC = new ExecutionContext(
+        this.realm,
+        new EnvironmentRecord(func.environment),
+        new EnvironmentRecord(func.environment)
+      )
+      this.ecs.push(newEC)
+      this.evaluate(code)
+      this.ecs.pop()
+    }
+    let runningEC = this.ecs[this.ecs.length - 1]
+    runningEC.lexicalEnvironment.add(name)
+    runningEC.lexicalEnvironment.set(name, func)
+    func.environment = runningEC.lexicalEnvironment
+    return new CompletionRecord('normal')
+  }
   Block(node) {
     if (node.children.length === 2) return
 
@@ -357,7 +390,7 @@ export class Evaluator {
     )
     this.ecs.push(newEC)
     let result = this.evaluate(node.children[1])
-    this.ecs.pop(newEC)
+    this.ecs.pop()
     return result
   }
   EOF() {
