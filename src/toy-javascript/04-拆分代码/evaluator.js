@@ -55,10 +55,7 @@ export class Evaluator {
     // console.log('Declare variable', node.children[1])
     let runningEC = this.ecs[this.ecs.length - 1]
     // runningEC.variableEnvironment[node.children[1].name] = new JSUndefined()
-    runningEC.variableEnvironment.add([
-      node.children[1].name,
-      new JSUndefined(),
-    ])
+    runningEC.lexicalEnvironment.add([node.children[1].name, new JSUndefined()])
     return new CompletionRecord('normal', new JSUndefined())
   }
   ExpressionStatement(node) {
@@ -325,7 +322,17 @@ export class Evaluator {
   }
   Block(node) {
     if (node.children.length === 2) return
-    return this.evaluate(node.children[1])
+
+    let runningEC = this.ecs[this.ecs.length - 1]
+    let newEC = new ExecutionContext(
+      runningEC.realm,
+      new EnvironmentRecord(runningEC.lexicalEnvironment),
+      runningEC.variableEnvironment
+    )
+    this.ecs.push(newEC)
+    let result = this.evaluate(node.children[1])
+    this.ecs.pop(newEC)
+    return result
   }
   EOF() {
     return null
