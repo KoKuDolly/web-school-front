@@ -50,6 +50,14 @@ let syntax = {
     ['MemberExpression', 'Arguments'],
     ['CallExpression', 'Arguments'],
   ], // new a()
+  Arguments: [
+    ['(', ')'],
+    ['(', 'ArgumentsList', ')'],
+  ],
+  ArgumentsList: [
+    ['AssignmentExpression'],
+    ['ArgumentsList', ',', 'AssignmentExpression'],
+  ],
   NewExpression: [['MemberExpression'], ['new', 'NewExpression']], // new a
   MemberExpression: [
     ['PrimaryExpression'],

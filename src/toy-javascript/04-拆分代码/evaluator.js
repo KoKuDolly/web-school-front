@@ -19,6 +19,10 @@ export class Evaluator {
   constructor() {
     this.realm = new Realm()
     this.globalObject = new JSObject()
+    this.globalObject.set('log', new JSObject())
+    this.globalObject.get('log').call = (args) => {
+      console.log(args)
+    }
     // stack
     this.ecs = [
       new ExecutionContext(
@@ -319,6 +323,28 @@ export class Evaluator {
     return new Reference(runningEC.lexicalEnvironment, node.name) // .get()
     // 通过Reference类型，获取当前环境的指定标识符
     // return runningEC.lexicalEnvironment[node.name] 是草率的做法，只能获取，不能写，例如let a = b，b是可读，a是可写。
+  }
+  Arguments(node) {
+    if (node.children.length === 2) {
+      return []
+    } else {
+      return this.evaluate(node.children[1])
+    }
+  }
+  ArgumentsList(node) {
+    if (node.children.length === 1) {
+      let result = this.evaluate(node.children[0])
+      if (result instanceof Reference) {
+        result = result.get()
+      }
+      return [result]
+    } else {
+      let result = this.evaluate(node.children[2])
+      if (result instanceof Reference) {
+        result = result.get()
+      }
+      return this.evaluate(node.children[0]).concat(result)
+    }
   }
   Block(node) {
     if (node.children.length === 2) return
