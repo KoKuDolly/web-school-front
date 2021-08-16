@@ -1,3 +1,3 @@
 module.exports = {
-  name: 'jsx.learn',
+  name: 'carousel',
 }
