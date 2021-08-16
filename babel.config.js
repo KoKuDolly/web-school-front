@@ -12,25 +12,25 @@ module.exports = function (api) {
         corejs: '3.6.4',
       },
     ],
-    [
-      '@babel/preset-react',
-      {
-        runtime: 'classic',
-      },
-    ],
+    // [
+    //   '@babel/preset-react',
+    //   {
+    //     runtime: 'classic',
+    //   },
+    // ],
   ]
   const plugins = [
-    [
-      'import',
-      {
-        libraryName: 'antd',
-        libraryDirectory: 'es',
-        style: 'css', // `style: true` 会加载 less 文件
-      },
-    ],
+    // [
+    //   'import',
+    //   {
+    //     libraryName: 'antd',
+    //     libraryDirectory: 'es',
+    //     style: 'css', // `style: true` 会加载 less 文件
+    //   },
+    // ],
     '@babel/plugin-syntax-jsx',
-    '@babel/plugin-transform-react-jsx',
-    '@babel/plugin-transform-react-display-name',
+    ['@babel/plugin-transform-react-jsx', { pragma: 'createElement' }],
+    // '@babel/plugin-transform-react-display-name',
     // '@babel/plugin-transform-react-jsx-self',
     // '@babel/plugin-transform-react-jsx-source'
   ]

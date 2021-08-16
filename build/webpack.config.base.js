@@ -4,7 +4,7 @@ const { name } = require('../config')
 
 module.exports = {
   entry: {
-    [name]: './src/' + name + '.js',
+    [name]: './src/components-learn/' + name + '.js',
   },
   output: {
     filename: '[name].[contenthash].js',
@@ -16,19 +16,19 @@ module.exports = {
       '@': path.resolve(__dirname, '../src'),
     },
   },
-  optimization: {
-    moduleIds: 'deterministic',
-    runtimeChunk: 'single',
-    splitChunks: {
-      cacheGroups: {
-        vendor: {
-          test: /[\\/]node_modules[\\/]/,
-          name: 'vendors',
-          chunks: 'all',
-        },
-      },
-    },
-  },
+  // optimization: {
+  //   moduleIds: 'deterministic',
+  //   runtimeChunk: 'single',
+  //   splitChunks: {
+  //     cacheGroups: {
+  //       vendor: {
+  //         test: /[\\/]node_modules[\\/]/,
+  //         name: 'vendors',
+  //         chunks: 'all',
+  //       },
+  //     },
+  //   },
+  // },
   module: {
     rules: [
       {
