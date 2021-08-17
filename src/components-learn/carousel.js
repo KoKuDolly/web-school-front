@@ -18,13 +18,29 @@ class Carousel extends Component {
       this.root.appendChild(child)
     }
 
-    this.root.addEventListener('mousedown', () => {
-      console.log('mousedown')
-      let move = () => {
-        console.log('move')
+    let position = 0 // 比例值
+    this.root.addEventListener('mousedown', (event) => {
+      let children = this.root.children
+      let startX = event.clientX
+
+      let move = (event) => {
+        let x = event.clientX - startX
+        let width = children[0].offsetWidth // getClientRect
+        for (let child of children) {
+          child.style.transition = 'none'
+          child.style.transform = `translateX(${
+            ((position * width + x) / width) * 100
+          }%)`
+        }
       }
-      let up = () => {
-        console.log('up')
+      let up = (event) => {
+        let x = event.clientX - startX
+        let width = children[0].offsetWidth
+        position = position + Math.round(x / width) // 比例
+        for (let child of children) {
+          child.style.transition = ''
+          child.style.transform = `translateX(${position * 100}%)`
+        }
         document.removeEventListener('mousemove', move)
         document.removeEventListener('mouseup', up)
       }
