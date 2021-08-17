@@ -1,7 +1,7 @@
-import './index.less'
-import { Component, createElement } from './framework'
+import './carousel.less'
+import { Component } from './framework'
 // 用构造函数模拟dom元素
-class Carousel extends Component {
+export class Carousel extends Component {
   constructor() {
     super()
     this.attributes = Object.create(null)
@@ -80,14 +80,3 @@ class Carousel extends Component {
     parent.appendChild(this.render())
   }
 }
-
-let images = [
-  require('../images/05.webp'),
-  require('../images/07.webp'),
-  require('../images/08.webp'),
-  require('../images/09.webp'),
-]
-
-let a = <Carousel src={images} />
-
-a.mountTo(document.body)
