@@ -22,24 +22,35 @@ class Carousel extends Component {
     this.root.addEventListener('mousedown', (event) => {
       let children = this.root.children
       let startX = event.clientX
+      let width = children[0].offsetWidth // getClientRect
 
       let move = (event) => {
         let x = event.clientX - startX
-        let width = children[0].offsetWidth // getClientRect
-        for (let child of children) {
-          child.style.transition = 'none'
-          child.style.transform = `translateX(${
-            ((position * width + x) / width) * 100
+        let current = position - (x - (x % width)) / width
+
+        for (let offset of [-1, 0, 1]) {
+          let pos = current + offset
+          pos = (pos + children.length) % children.length // 对称，不用Math.abs()，负数的转换
+          children[pos].style.transition = 'none'
+          children[pos].style.transform = `translateX(${
+            (-pos + offset) * 100 + (x % width)
           }%)`
         }
       }
       let up = (event) => {
         let x = event.clientX - startX
-        let width = children[0].offsetWidth
-        position = position + Math.round(x / width) // 比例
-        for (let child of children) {
-          child.style.transition = ''
-          child.style.transform = `translateX(${position * 100}%)`
+        position = position - Math.round(x / width)
+        for (let offset of [
+          0,
+          Math.sign(x - Math.round(x / width) - (width / 2) * Math.sign(x)),
+        ]) {
+          let pos = position + offset
+          pos = (pos + children.length) % children.length // 对称，不用Math.abs()，负数的转换
+
+          children[pos].style.transition = ''
+          children[pos].style.transform = `translateX(${
+            (-pos + offset) * 100
+          }%)`
         }
         document.removeEventListener('mousemove', move)
         document.removeEventListener('mouseup', up)
