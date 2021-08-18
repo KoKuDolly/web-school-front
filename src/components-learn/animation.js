@@ -13,10 +13,12 @@
 const TICK = Symbol('tick')
 const TICK_HANDLER = Symbol('tick-handler')
 const ANIMATIONS = Symbol('animations')
+const START_TIME = Symbol('start-time')
 
 export class Timeline {
   constructor() {
     this[ANIMATIONS] = new Set()
+    this[START_TIME] = new Map()
   }
   // get rate() {}
   // set rate() {}
@@ -24,18 +26,28 @@ export class Timeline {
   start() {
     let startTime = Date.now()
     this[TICK] = () => {
-      let t = Date.now() - startTime
+      let now = Date.now()
       for (let animation of this[ANIMATIONS]) {
-        let t0 = t
+        let t
+        if (this[START_TIME].get(animation) < startTime) {
+          // 动画添加时间比执行早
+          t = now - startTime
+        } else {
+          // 先前执行过一次动画了，后来又添加了新的动画
+          t = now - this[START_TIME].get(animation)
+        }
+
         if (animation.duration < t) {
           this.remove(animation)
-          t0 = animation.duration
+          t = animation.duration
         }
-        animation.receive(t0)
+        animation.receive(t)
       }
       requestAnimationFrame(this[TICK])
+      // setTimeout(this[TICK], 16)
     }
     this[TICK]()
+    // setInterval(this[TICK], 16) // 不推荐，浏览器行为，如果tick函数写的不恰当，会产生积压
   }
 
   pause() {}
@@ -43,8 +55,12 @@ export class Timeline {
 
   reset() {}
 
-  add(animation) {
+  add(animation, startTime) {
+    if (arguments.length < 2) {
+      startTime = Date.now()
+    }
     this[ANIMATIONS].add(animation)
+    this[START_TIME].set(animation, startTime)
   }
   remove(animation) {
     this[ANIMATIONS].delete(animation)
@@ -58,6 +74,7 @@ export class Animation {
     startValue,
     endValue,
     duration,
+    delay,
     timingFunction
   ) {
     this.object = object
@@ -66,6 +83,7 @@ export class Animation {
     this.endValue = endValue
     this.duration = duration
     this.timingFunction = timingFunction
+    this.delay = delay
   }
 
   receive(time) {
