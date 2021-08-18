@@ -1,10 +1,15 @@
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const { name } = require('../config')
+const { names } = require('../config')
+
+// let entrys = {}
+// names.forEach(name => {
+//   entrys[name] = './src/components-learn/' + name + '.js'
+// })
 
 module.exports = {
   entry: {
-    [name]: './src/components-learn/' + name + '.js',
+    [names[1]]: './src/components-learn/' + names[1] + '.js'
   },
   output: {
     filename: '[name].[contenthash].js',

@@ -1,3 +1,3 @@
 module.exports = {
-  name: 'index',
+  names: ['index', 'animation-demo'],
 }
