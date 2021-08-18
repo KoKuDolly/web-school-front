@@ -9,6 +9,7 @@
 //   requestAnimationFrame(tick)
 //   // cancelAnimationFrame(handler)
 // }
+import { linear } from './ease'
 
 const TICK = Symbol('tick')
 const TICK_HANDLER = Symbol('tick-handler')
@@ -34,17 +35,21 @@ export class Timeline {
         let t
         if (this[START_TIME].get(animation) < startTime) {
           // 动画添加时间比执行早，谁发生的更晚，就减去谁
-          t = now - startTime - this[PAUSE_TIME]
+          t = now - startTime - this[PAUSE_TIME] - animation.delay
         } else {
           // 先前执行过一次动画了，后来又添加了新的动画
-          t = now - this[START_TIME].get(animation) - this[PAUSE_TIME]
+          t =
+            now -
+            this[START_TIME].get(animation) -
+            this[PAUSE_TIME] -
+            animation.delay
         }
 
         if (t > animation.duration) {
           this.remove(animation)
           t = animation.duration
         }
-        animation.receive(t)
+        if (t > 0) animation.receive(t)
       }
       this[TICK_HANDLER] = requestAnimationFrame(this[TICK])
       // setTimeout(this[TICK], 16)
@@ -63,7 +68,16 @@ export class Timeline {
     this[TICK]()
   }
 
-  reset() {}
+  reset() {
+    this.pause()
+    this[PAUSE_START] = 0
+    this[PAUSE_TIME] = 0
+
+    this[ANIMATIONS].clear()
+    this[START_TIME].clear()
+
+    this[TICK_HANDLER] = null
+  }
 
   add(animation, startTime) {
     if (arguments.length < 2) {
@@ -93,16 +107,17 @@ export class Animation {
     this.startValue = startValue
     this.endValue = endValue
     this.duration = duration
-    this.timingFunction = timingFunction
+    this.timingFunction = timingFunction || linear
     this.delay = delay
-    this.template = template
+    this.template = template || template
   }
 
   receive(time) {
     // console.log(time)
     let range = this.endValue - this.startValue
+    let progress = this.timingFunction(time / this.duration)
     this.object[this.property] = this.template(
-      this.startValue + (range * time) / this.duration
+      this.startValue + range * progress
     )
   }
 }

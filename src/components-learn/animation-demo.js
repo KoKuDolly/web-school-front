@@ -1,4 +1,5 @@
 import { Timeline, Animation } from './animation'
+import { ease, easeIn } from './ease'
 
 let tl = new Timeline()
 
@@ -12,10 +13,15 @@ tl.add(
     500,
     2000,
     0,
-    null,
+    easeIn,
     (v) => `translateX(${v}px)`
   )
 )
+
+setTimeout(() => {
+  document.querySelector('#el2').style.transition = 'transform ease-in 2s'
+  document.querySelector('#el2').style.transform = 'translateX(500px)'
+}, 16)
 
 document.querySelector('#pause-btn').addEventListener('click', () => tl.pause())
 document
