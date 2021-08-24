@@ -1,12 +1,12 @@
 import { createElement } from './framework'
 import { Carousel } from './carousel'
-import { Timeline, Animation } from './animation'
+import { Timeline, Animation } from '../animation/animation'
 
 let images = [
-  require('../images/05.webp'),
-  require('../images/07.webp'),
-  require('../images/08.webp'),
-  require('../images/09.webp'),
+  require('@/images/05.webp'),
+  require('@/images/07.webp'),
+  require('@/images/08.webp'),
+  require('@/images/09.webp'),
 ]
 
 let a = <Carousel src={images} />

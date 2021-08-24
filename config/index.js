@@ -1,3 +1,6 @@
 module.exports = {
-  names: ['index', 'animation-demo'],
+  name: 'index',
+  // fileName: 'animation',
+  fileName: 'carousel',
+  // fileName: 'jsx',
 }

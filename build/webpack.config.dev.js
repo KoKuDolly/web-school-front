@@ -1,16 +1,7 @@
 const { merge } = require('webpack-merge')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const baseConfig = require('./webpack.config.base')
-const { names } = require('../config')
-
-// const hwp = []
-
-// names.forEach(name => {
-//   hwp.push(new HtmlWebpackPlugin({
-//     template: 'html/' + name + '.html',
-//     title: name,
-//   }))
-// })
+const { fileName } = require('../config')
 
 module.exports = merge(baseConfig, {
   mode: 'development',
@@ -30,10 +21,9 @@ module.exports = merge(baseConfig, {
     },
   },
   plugins: [
-    // ...hwp
     new HtmlWebpackPlugin({
-      template: 'html/' + names[1] + '.html',
-      title: names[1],
+      template: 'html/' + fileName + '.html',
+      title: fileName,
     }),
   ],
 })

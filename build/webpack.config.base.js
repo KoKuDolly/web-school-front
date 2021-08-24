@@ -1,15 +1,10 @@
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const { names } = require('../config')
-
-// let entrys = {}
-// names.forEach(name => {
-//   entrys[name] = './src/components-learn/' + name + '.js'
-// })
+const { name, fileName } = require('../config')
 
 module.exports = {
   entry: {
-    [names[1]]: './src/components-learn/' + names[1] + '.js'
+    [name]: './src/components/' + fileName + '/' + name + '.js'
   },
   output: {
     filename: '[name].[contenthash].js',
@@ -20,6 +15,7 @@ module.exports = {
     alias: {
       '@': path.resolve(__dirname, '../src'),
     },
+    // extensions: ['.js', '.json', '.wasm']
   },
   // optimization: {
   //   moduleIds: 'deterministic',
