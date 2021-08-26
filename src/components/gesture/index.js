@@ -1,5 +1,5 @@
 const element = document.documentElement
-let contexts = new Map()
+let contexts = new Map() // 存储 mouse 事件 的多个按键， touch 事件的多个触点
 let isListeningMouse = false
 // mouse 事件
 element.addEventListener('mousedown', (e) => {
@@ -88,6 +88,14 @@ let start = (point, context) => {
   context.startX = point.clientX
   context.startY = point.clientY
 
+  context.points = [
+    {
+      t: Date.now(),
+      x: point.clientX,
+      y: point.clientY,
+    },
+  ]
+
   context.isTap = true
   context.isPan = false
   context.isPress = false
@@ -114,6 +122,12 @@ let move = (point, context) => {
   if (context.isPan) {
     console.log('pan', dx, dy)
   }
+  context.points = context.points.filter((point) => Date.now() - point.t < 500)
+  context.points.push({
+    t: Date.now(),
+    x: point.clientX,
+    y: point.clientY,
+  })
 }
 
 let end = (point, context) => {
@@ -127,6 +141,24 @@ let end = (point, context) => {
   }
   if (context.isPress) {
     console.log('pressend')
+  }
+  context.points = context.points.filter((point) => Date.now() - point.t < 500)
+  let v, d
+  if (context.points.length === 0) {
+    v = 0
+  } else {
+    d = Math.sqrt(
+      (point.clientX - context.points[0].x) ** 2 +
+        (point.clientY - context.points[0].y) ** 2
+    )
+    v = d / (Date.now() - context.points[0].t)
+  }
+  //   console.log(v, d)
+  if (v > 1.5) {
+    console.log('flick')
+    context.isFlick = true
+  } else {
+    context.isFlick = false
   }
 }
 
