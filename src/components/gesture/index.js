@@ -37,15 +37,15 @@ element.addEventListener('mousedown', (e) => {
     contexts.delete('mouse' + (1 << e.button))
 
     if (e.buttons === 0) {
-      element.removeEventListener('mousemove', mousemove)
-      element.removeEventListener('mouseup', mouseup)
+      document.removeEventListener('mousemove', mousemove)
+      document.removeEventListener('mouseup', mouseup)
       isListeningMouse = false
     }
   }
 
   if (!isListeningMouse) {
-    element.addEventListener('mousemove', mousemove)
-    element.addEventListener('mouseup', mouseup)
+    document.addEventListener('mousemove', mousemove)
+    document.addEventListener('mouseup', mouseup)
     isListeningMouse = true
   }
 })
@@ -119,6 +119,7 @@ let move = (point, context) => {
 let end = (point, context) => {
   if (context.isTap) {
     console.log('tap')
+    dispatch('tap')
     clearTimeout(context.handler)
   }
   if (context.isPan) {
@@ -132,4 +133,14 @@ let end = (point, context) => {
 let cancel = (point, context) => {
   clearTimeout(context.handler)
   //   console.log('cancel', point.clientX, point.clientY)
+}
+
+// 派发事件
+// properties context point
+function dispatch(type, properties) {
+  let event = new Event(type) // 新建一个自定义事件，继承自 Event 对象
+  for (let name in properties) {
+    event[name] = properties[name]
+  }
+  element.dispatchEvent(event) // 触发事件
 }

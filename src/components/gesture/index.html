@@ -1,2 +1,7 @@
 <script src="./index.js"></script>
-<body oncontextmenu="event.preventDefault()"></body>
+<body oncontextmenu="event.preventDefault()">
+<script>
+    document.documentElement.addEventListener('tap', () => {
+        console.log('tap event trigger!')
+    })
+</script>
