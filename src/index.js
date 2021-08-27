@@ -1,6 +1,6 @@
-import { createElement } from './framework'
-import { Carousel } from './carousel'
-import { Timeline, Animation } from '../animation/animation'
+import { createElement } from '@/libs/framework'
+import { Carousel } from '@/components/carousel/carousel'
+import { Timeline, Animation } from '@/components/animation/animation'
 
 let images = [
   require('@/images/05.webp'),

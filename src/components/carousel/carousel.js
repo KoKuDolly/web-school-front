@@ -1,5 +1,8 @@
 import './carousel.less'
-import { Component } from './framework'
+import { Component } from '@/libs/framework'
+import { enableGesture } from '@/components/gesture/gesture'
+import { Timeline, Animation } from '@/components/animation/animation'
+import { ease } from '@/components/animation/ease'
 // 用构造函数模拟dom元素
 export class Carousel extends Component {
   constructor() {
@@ -10,6 +13,7 @@ export class Carousel extends Component {
     this.attributes[name] = value
   }
   render() {
+    // TODO 为什么这里获取不到 getClientRects()
     this.root = document.createElement('div')
     this.root.classList.add('carousel')
     for (let record of this.attributes.src) {
@@ -18,8 +22,42 @@ export class Carousel extends Component {
       this.root.appendChild(child)
     }
 
-    let position = 0 // 比例值
-    this.root.addEventListener('mousedown', (event) => {
+    enableGesture(this.root)
+
+    let children = this.root.children
+    let width = 200 // getClientRect
+
+    let position = 0
+
+    this.root.addEventListener('pan', (event) => {
+      let x = event.clientX - event.startX
+      let current = position - (x - (x % width)) / width
+
+      for (let offset of [-1, 0, 1]) {
+        let pos = current + offset
+        pos = ((pos % children.length) + children.length) % children.length
+        children[pos].style.transition = 'none'
+        children[pos].style.transform = `translateX(${
+          (-pos + offset) * 100 + (x % width)
+        }%)`
+      }
+    })
+
+    this.root.addEventListener('panend', (event) => {
+      let x = event.clientX - event.startX
+      let current = position - (x - (x % width)) / width
+
+      for (let offset of [-1, 0, 1]) {
+        let pos = current + offset
+        pos = ((pos % children.length) + children.length) % children.length
+        children[pos].style.transition = 'none'
+        children[pos].style.transform = `translateX(${
+          (-pos + offset) * 100 + (x % width)
+        }%)`
+      }
+    })
+
+    /*this.root.addEventListener('mousedown', (event) => {
       let children = this.root.children
       let startX = event.clientX
       let width = children[0].offsetWidth // getClientRect
@@ -59,7 +97,7 @@ export class Carousel extends Component {
       document.addEventListener('mouseup', up)
     })
 
-    /*let currentIndex = 0
+    let currentIndex = 0
     setInterval(() => {
       let children = this.root.children
       let nextIndex = (currentIndex + 1) % children.length

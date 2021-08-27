@@ -1,10 +1,10 @@
 const path = require('path')
 const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-const { name, fileName } = require('../config')
+const { name } = require('../config')
 
 module.exports = {
   entry: {
-    [name]: './src/components/' + fileName + '/' + name + '.js'
+    [name]: path.resolve('src', `${name}.js`) 
   },
   output: {
     filename: '[name].[contenthash].js',
