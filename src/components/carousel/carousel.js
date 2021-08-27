@@ -24,14 +24,27 @@ export class Carousel extends Component {
 
     enableGesture(this.root)
 
+    const timeline = new Timeline()
+    timeline.start()
+
     let children = this.root.children
     let width = 200 // getClientRect
 
     let position = 0
+    let t = 0
+    let ax = 0
+    let handler = null
+
+    this.root.addEventListener('start', (event) => {
+      clearInterval(handler)
+      timeline.pause()
+      let progress = (Date.now() - t) / 1500
+      ax = ease(progress) * width - width
+    })
 
     this.root.addEventListener('pan', (event) => {
-      let x = event.clientX - event.startX
-      let current = position - (x - (x % width)) / width
+      let x = event.clientX - event.startX - ax
+      let current = position - (x - (x % width)) / width // 移动的时候，取整数倍，不四舍五入
 
       for (let offset of [-1, 0, 1]) {
         let pos = current + offset
@@ -43,19 +56,86 @@ export class Carousel extends Component {
       }
     })
 
-    this.root.addEventListener('panend', (event) => {
-      let x = event.clientX - event.startX
-      let current = position - (x - (x % width)) / width
+    this.root.addEventListener('end', (event) => {
+      timeline.reset()
+      timeline.start()
+
+      handler = setInterval(nextPicture, 3000)
+
+      let x = event.clientX - event.startX - ax
+      let current = position - (x - (x % width)) / width // 移动的时候，取整数倍，不四舍五入
+
+      let direction = Math.round((x % width) / width)
+
+      if (event.isFlick) {
+        if (event.velocity < 0) {
+          direction = Math.ceil((x % width) / width)
+        } else {
+          direction = Math.floor((x % width) / width)
+        }
+      }
 
       for (let offset of [-1, 0, 1]) {
         let pos = current + offset
         pos = ((pos % children.length) + children.length) % children.length
         children[pos].style.transition = 'none'
-        children[pos].style.transform = `translateX(${
-          (-pos + offset) * 100 + (x % width)
-        }%)`
+        timeline.add(
+          new Animation(
+            children[pos].style,
+            'transform',
+            (-pos + offset) * width + (x % width),
+            (-pos + offset) * width + direction * width,
+            1500,
+            0,
+            ease,
+            (v) => `translateX(${v}px)`
+          )
+        )
       }
+
+      position = position - (x - (x % width)) / width - direction
+      position =
+        ((position % children.length) + children.length) % children.length
     })
+
+    const nextPicture = () => {
+      let children = this.root.children
+      let nextIndex = (position + 1) % children.length
+      let current = children[position]
+      let next = children[nextIndex]
+
+      t = Date.now()
+
+      timeline.add(
+        new Animation(
+          current.style,
+          'transform',
+          -position * width,
+          -width - position * width,
+          1500,
+          0,
+          ease,
+          (v) => `translateX(${v}px)`
+        )
+      )
+
+      timeline.add(
+        new Animation(
+          next.style,
+          'transform',
+          width - nextIndex * width,
+          -nextIndex * width,
+          1500,
+          0,
+          ease,
+          (v) => `translateX(${v}px)`
+        )
+      )
+
+      position = nextIndex
+    }
+
+    handler = setInterval(nextPicture, 3000)
 
     /*this.root.addEventListener('mousedown', (event) => {
       let children = this.root.children
