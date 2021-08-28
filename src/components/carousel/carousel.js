@@ -38,8 +38,8 @@ export class Carousel extends Component {
     this.root.addEventListener('start', (event) => {
       clearInterval(handler)
       timeline.pause()
-      let progress = (Date.now() - t) / 1500
-      ax = ease(progress) * width - width
+      let progress = (Date.now() - t) / 1500 // (当前事件触发时间 - 当下图片定时轮播开始时间) / 一张切换的过渡时间
+      ax = ease(progress) * width - width // 这里为什么要 - width
     })
 
     this.root.addEventListener('pan', (event) => {
@@ -66,12 +66,12 @@ export class Carousel extends Component {
       let current = position - (x - (x % width)) / width // 移动的时候，取整数倍，不四舍五入
 
       let direction = Math.round((x % width) / width)
-
+      // 正负数学上是符号，大小。物理上是方向，大小按绝对值来算
       if (event.isFlick) {
         if (event.velocity < 0) {
-          direction = Math.ceil((x % width) / width)
+          direction = Math.ceil((x % width) / width) // 负数，向上取整， -10.9 ceil 后 为 -10
         } else {
-          direction = Math.floor((x % width) / width)
+          direction = Math.floor((x % width) / width) // 正数，向下取整
         }
       }
 
