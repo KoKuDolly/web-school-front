@@ -1,24 +1,22 @@
 import './carousel.less'
-import { Component } from '@/libs/framework'
+import { Component, STATE, ATTRIBUTES } from '@/libs/framework'
 import { enableGesture } from '@/components/gesture/gesture'
 import { Timeline, Animation } from '@/components/animation/animation'
 import { ease } from '@/components/animation/ease'
+
+export { STATE, ATTRIBUTES } from '@/libs/framework'
 // 用构造函数模拟dom元素
 export class Carousel extends Component {
   constructor() {
     super()
-    this.attributes = Object.create(null)
-  }
-  setAttribute(name, value) {
-    this.attributes[name] = value
   }
   render() {
     // TODO 为什么这里获取不到 getClientRects()
     this.root = document.createElement('div')
     this.root.classList.add('carousel')
-    for (let record of this.attributes.src) {
+    for (let record of this[ATTRIBUTES].src) {
       let child = document.createElement('div')
-      child.style.backgroundImage = `url(${record})`
+      child.style.backgroundImage = `url(${record.img})`
       this.root.appendChild(child)
     }
 
@@ -30,7 +28,8 @@ export class Carousel extends Component {
     let children = this.root.children
     let width = 200 // getClientRect
 
-    let position = 0
+    this[STATE].position = 0
+
     let t = 0
     let ax = 0
     let handler = null
@@ -42,9 +41,16 @@ export class Carousel extends Component {
       ax = ease(progress) * width - width // 这里为什么要 - width
     })
 
+    this.root.addEventListener('tap', (event) => {
+      this.triggerEvent('click', {
+        position: this[STATE].position,
+        data: this[ATTRIBUTES].src[this[STATE].position],
+      })
+    })
+
     this.root.addEventListener('pan', (event) => {
       let x = event.clientX - event.startX - ax
-      let current = position - (x - (x % width)) / width // 移动的时候，取整数倍，不四舍五入
+      let current = this[STATE].position - (x - (x % width)) / width // 移动的时候，取整数倍，不四舍五入
 
       for (let offset of [-1, 0, 1]) {
         let pos = current + offset
@@ -63,7 +69,7 @@ export class Carousel extends Component {
       handler = setInterval(nextPicture, 3000)
 
       let x = event.clientX - event.startX - ax
-      let current = position - (x - (x % width)) / width // 移动的时候，取整数倍，不四舍五入
+      let current = this[STATE].position - (x - (x % width)) / width // 移动的时候，取整数倍，不四舍五入
 
       let direction = Math.round((x % width) / width)
       // 正负数学上是符号，大小。物理上是方向，大小按绝对值来算
@@ -93,16 +99,20 @@ export class Carousel extends Component {
         )
       }
 
-      position = position - (x - (x % width)) / width - direction
-      position =
-        ((position % children.length) + children.length) % children.length
+      this[STATE].position =
+        this[STATE].position - (x - (x % width)) / width - direction
+      this[STATE].position =
+        ((this[STATE].position % children.length) + children.length) %
+        children.length
+
+      this.triggerEvent('change', { position: this[STATE].position })
     })
 
     const nextPicture = () => {
       let children = this.root.children
-      let nextIndex = (position + 1) % children.length
-      let current = children[position]
-      let next = children[nextIndex]
+      let nextPosition = (this[STATE].position + 1) % children.length
+      let current = children[this[STATE].position]
+      let next = children[nextPosition]
 
       t = Date.now()
 
@@ -110,8 +120,8 @@ export class Carousel extends Component {
         new Animation(
           current.style,
           'transform',
-          -position * width,
-          -width - position * width,
+          -this[STATE].position * width,
+          -width - this[STATE].position * width,
           1500,
           0,
           ease,
@@ -123,8 +133,8 @@ export class Carousel extends Component {
         new Animation(
           next.style,
           'transform',
-          width - nextIndex * width,
-          -nextIndex * width,
+          width - nextPosition * width,
+          -nextPosition * width,
           1500,
           0,
           ease,
@@ -132,7 +142,8 @@ export class Carousel extends Component {
         )
       )
 
-      position = nextIndex
+      this[STATE].position = nextPosition
+      this.triggerEvent('change', { position: this[STATE].position })
     }
 
     handler = setInterval(nextPicture, 3000)
@@ -180,21 +191,18 @@ export class Carousel extends Component {
     let currentIndex = 0
     setInterval(() => {
       let children = this.root.children
-      let nextIndex = (currentIndex + 1) % children.length
+      let nextPosition = (currentIndex + 1) % children.length
       let current = children[currentIndex]
-      let next = children[nextIndex]
+      let next = children[nextPosition]
       next.style.transition = 'none'
-      next.style.transform = `translateX(${100 - nextIndex * 100}%)`
+      next.style.transform = `translateX(${100 - nextPosition * 100}%)`
       setTimeout(() => {
         next.style.transition = ''
         current.style.transform = `translateX(${-100 - currentIndex * 100}%)`
-        next.style.transform = `translateX(${-nextIndex * 100}%)`
-        currentIndex = nextIndex
+        next.style.transform = `translateX(${-nextPosition * 100}%)`
+        currentIndex = nextPosition
       }, 16)
     }, 3000)*/
     return this.root
-  }
-  mountTo(parent) {
-    parent.appendChild(this.render())
   }
 }

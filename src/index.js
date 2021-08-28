@@ -1,47 +1,22 @@
 import { createElement } from '@/libs/framework'
 import { Carousel } from '@/components/carousel/carousel'
-import { Timeline, Animation } from '@/components/animation/animation'
+// import { Timeline, Animation } from '@/components/animation/animation'
 
 let images = [
-  require('@/images/05.webp'),
-  require('@/images/07.webp'),
-  require('@/images/08.webp'),
-  require('@/images/09.webp'),
+  { img: require('@/images/05.webp'), url: 'www.github.com' },
+  { img: require('@/images/07.webp'), url: 'www.github.com' },
+  { img: require('@/images/08.webp'), url: 'www.github.com' },
+  { img: require('@/images/09.webp'), url: 'www.github.com' },
 ]
 
-let a = <Carousel src={images} />
-
-a.mountTo(document.body)
-
-let tl = new Timeline()
-
-window.tl = tl
-window.animation = new Animation(
-  {
-    set a(v) {
-      // console.log(v)
-    },
-  },
-  'a',
-  1,
-  100,
-  1000,
-  null
+let a = (
+  <Carousel
+    src={images}
+    onChange={(event) => {
+      //console.log(event.detail.position)
+    }}
+    onClick={(e) => (window.location.href = e.detail.data.url)}
+  />
 )
 
-// tl.add(
-//   new Animation(
-//     {
-//       set a(v) {
-//         console.log(v)
-//       },
-//     },
-//     'a',
-//     1,
-//     100,
-//     1000,
-//     null
-//   )
-// )
-
-tl.start()
+a.mountTo(document.body)
