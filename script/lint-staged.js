@@ -1,5 +1,6 @@
 const path = require('path')
 const lintStaged = require('lint-staged')
+const process = require('process')
 
 // console.log(process.cwd(), __dirname)
 const cwd = process.cwd()
@@ -20,9 +21,12 @@ async function lintStagedWrapper() {
       verbose: false,
     })
     console.log(success ? 'Linting was successful!' : 'Linting failed!')
+    if (success) process.exitCode = 0
+    else process.exitCode = 1
   } catch (e) {
     // Failed to load configuration
     console.error(e)
+    process.exitCode = 1
   }
 }
 
