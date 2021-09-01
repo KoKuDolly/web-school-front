@@ -1,0 +1,156 @@
+<style>
+    div {
+        background-color: gray;
+        display: inline-block;
+        margin: 30px;
+        height: 100px;
+        width: 100px;
+        border-radius: 50%;
+    }
+
+    .green.light {
+        background-color: green;
+    }
+    .yellow.light {
+        background-color: yellow;
+    }
+    .red.light {
+        background-color: red;
+    }
+</style>
+
+<div class="green"></div>
+<div class="yellow"></div>
+<div class="red"></div>
+
+<button id="next">next</button>
+
+<script>
+    function green() {
+        const lights = document.getElementsByTagName('div')
+        for (let i = 0; i < lights.length; i++) {
+            lights[i].classList.remove('light')
+        }
+        document.getElementsByClassName('green')[0].classList.add('light')
+    }
+    function yellow() {
+        const lights = document.getElementsByTagName('div')
+        for (let i = 0; i < lights.length; i++) {
+            lights[i].classList.remove('light')
+        }
+        document.getElementsByClassName('yellow')[0].classList.add('light')
+    }
+    function red() {
+        const lights = document.getElementsByTagName('div')
+        for (let i = 0; i < lights.length; i++) {
+            lights[i].classList.remove('light')
+        }
+        document.getElementsByClassName('red')[0].classList.add('light')
+    }
+    function sleep (t) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                resolve()
+            }, t);
+        })
+    }
+    function happen(element, eventName) {
+        return new Promise((resolve, reject) => {
+            element.addEventListener(eventName, resolve, {once: true})
+        })
+    }
+    //回调
+    // function go() {
+    //     green()
+    //     setTimeout(() => {
+    //         yellow()
+    //         setTimeout(() => {
+    //             red()
+    //             setTimeout(() => {
+    //                 go()
+    //             }, 500);
+    //         }, 200);
+    //     }, 1000);
+    // }
+
+    // Promise
+    // function go() {
+    //     green()
+    //     sleep(1000).then(() => {
+    //         yellow()
+    //         return sleep(200)
+    //     }).then(() => {
+    //         red()
+    //         return sleep(500)
+    //     }).then(() => {
+    //         return go()
+    //     })
+    // }
+
+    // async
+
+    // async function go() {
+    //     while(true) {
+    //         green()
+    //         await sleep(1000)
+    //         yellow()
+    //         await sleep(200)
+    //         red()
+    //         await sleep(500)
+    //     }
+        
+    //     // go() // 这里是递归呢还是 while(true) 还是不要递归的好，节省空间
+    // }
+
+    // async function go() {
+    //     while(true) {
+    //         green()
+    //         await happen(document.getElementById('next'), 'click')
+    //         yellow()
+    //         await happen(document.getElementById('next'), 'click')
+    //         red()
+    //         await happen(document.getElementById('next'), 'click')
+    //     }
+    // }
+
+    // go()
+</script>
+
+<script>
+    // generator
+
+    function* go() {
+        while(true) {
+            green()
+            yield sleep(1000)
+            yellow()
+            yield sleep(200)
+            red()
+            yield sleep(500)
+        }
+    }
+
+    function run(iterator) {
+        const {value, done} = iterator.next()
+        if (done) return
+        if (value instanceof Promise) {
+            value.then(() => {
+                run(iterator)
+            })
+        }
+    }
+
+    function co(generator) {
+        return function() {
+            return run(generator())
+        }
+    }
+
+    go = co(go)
+
+    go()
+</script>
+<script>
+    // async generator
+    // for await of
+</script>
