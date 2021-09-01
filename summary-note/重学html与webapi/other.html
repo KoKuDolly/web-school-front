@@ -1,0 +1,43 @@
+<script>
+    let names = Object.getOwnPropertyNames(window)
+    console.log(names)
+
+    function filterOut(names, props) {
+        let set = new Set()
+        props.forEach(v => set.add(v))
+        return names.filter(v => !set.has(v))
+    }
+
+    // ECMA 262
+    let js = new Set()
+    let objects = ['globalThis', 'console', 'BigInt', 'BigInt64Array']
+
+    objects.forEach(v => js.add(v))
+    names = names.filter(v => !js.has(v))
+
+    // Subclass of Node
+    names = names.filter(v => {
+        try {
+            return !window[v].prototype instanceof Node
+        } catch(e) {
+            return true
+        }
+    }).filter(v => v !== 'Node')
+    // events
+    names = names.filter(v => !v.match(/^on/))
+
+    // webkit private
+    names = names.filter(v => !v.match(/^webkit/))
+
+    // html
+    // whatwg
+    // ecma 402 intl
+    // khronos webgl
+    // webaudio
+    // whatwg encoding XMLHttpRequest
+    // wicg.github.io    sync-manager
+
+    // 剩余。。。
+
+    // whatwg 的整理一下
+</script>
