@@ -21,12 +21,12 @@ async function lintStagedWrapper() {
       verbose: false,
     })
     console.log(success ? 'Linting was successful!' : 'Linting failed!')
-    if (success) process.exitCode = 0
-    else process.exitCode = 1
+    // if (success) process.exitCode = 0
+    // else process.exitCode = 1
   } catch (e) {
     // Failed to load configuration
     console.error(e)
-    process.exitCode = 1
+    // process.exitCode = 1
   }
 }
 
