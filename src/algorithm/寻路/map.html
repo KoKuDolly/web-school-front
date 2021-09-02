@@ -73,7 +73,7 @@
       document.addEventListener('mouseup', () => (mousedown = false))
       document.addEventListener('contextmenu', (e) => e.preventDefault())
 
-      async function path(map, start, end) {
+      async function findPath(map, start, end) {
         let table = Object.create(map)
         let queue = [start]
         async function insert(x, y, pre) {
