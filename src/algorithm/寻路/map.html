@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Map</title>
+    <style>
+      /* * {
+        margin: 0;
+        padding: 0;
+      } */
+      .cell {
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        line-height: 7px;
+        background-color: gray;
+        border-bottom: solid 1px #fff;
+        border-right: solid 1px #fff;
+        vertical-align: middle;
+      }
+      #container {
+        line-height: 6px;
+        width: 701px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container"></div>
+    <button onclick="localStorage.setItem('map', JSON.stringify(map))">
+      save
+    </button>
+    <script>
+      const map = localStorage.getItem('map')
+        ? JSON.parse(localStorage.getItem('map'))
+        : Array(10000).fill(0)
+
+      const container = document.getElementById('container')
+      for (let x = 0; x < 100; x++) {
+        for (let y = 0; y < 100; y++) {
+          const cell = document.createElement('div')
+          cell.classList.add('cell')
+
+          if (map[100 * x + y] === 1) {
+            cell.style.backgroundColor = 'black'
+          }
+          cell.addEventListener('mousemove', () => {
+            if (mousedown) {
+              if (clear) {
+                cell.style.backgroundColor = ''
+                map[100 * x + y] = 0
+              } else {
+                cell.style.backgroundColor = 'black'
+                map[100 * x + y] = 1
+              }
+            }
+          })
+
+          container.appendChild(cell)
+        }
+      }
+
+      let mousedown = false
+      let clear = false
+
+      document.addEventListener('mousedown', (e) => {
+        mousedown = true
+        clear = e.which === 3
+      })
+
+      document.addEventListener('mouseup', () => (mousedown = false))
+      document.addEventListener('contextmenu', (e) => e.preventDefault())
+
+      function path(map, start, end) {
+        let queue = [start]
+        function insert(x, y) {
+          if (x < 0 || x > 100 || y < 0 || y > 100) return
+          if (map[x * 100 + y]) return
+          map[x * 100 + y] = 2
+          queue.push([x, y])
+        }
+
+        while (queue.length) {
+          let [x, y] = queue.shift()
+          console.log(x, y)
+          if (x === end[0] && y === end[1]) return true
+          insert(x - 1, y)
+          insert(x, y - 1)
+          insert(x + 1, y)
+          insert(x, y + 1)
+        }
+      }
+    </script>
+
+    <script>
+      function bfsAndDfs() {
+        let graph = {
+          A: ['B', 'C'],
+          B: ['A', 'C', 'D'],
+          C: ['A', 'D', 'E'],
+          D: ['B', 'C', 'E'],
+          E: ['C', 'D', 'F'],
+          F: ['E'],
+        }
+
+        function bfs(graph, startPoint) {
+          let queue = []
+          let result = []
+
+          queue.push(startPoint)
+          result.push(startPoint)
+
+          while (queue.length > 0) {
+            let point = queue.shift()
+            let nodes = graph[point]
+            for (let node of nodes) {
+              if (result.includes(node)) continue
+              result.push(node)
+              queue.push(node)
+            }
+          }
+          return result
+        }
+
+        function dfs(graph, startPoint) {
+          let stack = []
+          let result = []
+
+          stack.push(startPoint)
+          result.push(startPoint)
+
+          while (stack.length > 0) {
+            let point = stack.pop()
+            let nodes = graph[point]
+            for (let node of nodes) {
+              if (result.includes(node)) continue
+              result.push(node)
+              stack.push(node)
+            }
+          }
+          return result
+        }
+
+        let resultBfs = bfs(graph, 'A')
+        let resultDfs = dfs(graph, 'A')
+        console.log(resultBfs, resultDfs)
+      }
+
+      bfsAndDfs()
+    </script>
+  </body>
+</html>
