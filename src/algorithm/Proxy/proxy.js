@@ -1,5 +1,6 @@
-let callbacks = new Map()
-let usedReactivities = []
+let callbacks = new Map() // 记录effect的回调函数
+let usedReactivities = [] // 使用到的响应式属性
+let reactivities = new Map() // 记录响应式对象
 
 function effect(callback) {
   usedReactivities = []
@@ -17,7 +18,10 @@ function effect(callback) {
 }
 
 function reactive(object) {
-  return new Proxy(object, {
+  if (reactivities.has(object)) {
+    return reactivities.get(object)
+  }
+  let proxy = new Proxy(object, {
     set(obj, prop, value) {
       obj[prop] = value
       if (callbacks.get(obj)) {
@@ -31,9 +35,14 @@ function reactive(object) {
     },
     get(obj, prop) {
       usedReactivities.push([obj, prop])
+      if (typeof obj[prop] === 'object') {
+        return reactive(obj[prop])
+      }
       return obj[prop]
     },
   })
+
+  reactivities.set(object, proxy)
 }
 
 const object = {
