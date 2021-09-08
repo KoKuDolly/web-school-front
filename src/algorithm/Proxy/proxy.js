@@ -43,13 +43,14 @@ function reactive(object) {
   })
 
   reactivities.set(object, proxy)
+  return proxy
 }
 
 const object = {
   a: 1,
   b: 2,
 }
-const po = reactive(object)
+let po = reactive(object)
 
 effect(() => {
   console.log(po.a, 'effect')
