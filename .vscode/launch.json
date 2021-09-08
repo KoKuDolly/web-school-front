@@ -9,7 +9,7 @@
       "request": "launch",
       "name": "Launch Program",
       "skipFiles": ["<node_internals>/**"],
-      "program": "${workspaceFolder}/src/algorithm/String/kmp.js"
+      "program": "${workspaceFolder}/src/algorithm/Proxy/proxy.js"
     }
   ]
 }
