@@ -1,8 +1,8 @@
 # 字符串分析
 
-字典树
+字典树 Trie
 
-KMP
+KMP 字符串模式匹配
 
 WildCard
 
