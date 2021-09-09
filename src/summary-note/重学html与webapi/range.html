@@ -1,0 +1,35 @@
+<!-- <div id="a">
+    123 <span style="background-color: burlywood;">456789</span>
+    0123456789
+</div>
+<script>
+    let range = new Range()
+    range.setStart(document.getElementById('a').childNodes[0], 3)
+    range.setEnd(document.getElementById('a').childNodes[2], 3)
+</script> -->
+
+<div>
+  <ul id="ul">
+    <li>1</li>
+    <li>2</li>
+    <li>3</li>
+    <li>4</li>
+  </ul>
+</div>
+<script>
+  function reverseChildren(element) {
+    let range = new Range()
+    range.selectNodeContents(element)
+
+    let fragment = range.extractContents() // 这句会把元素从dom中拿走
+    let l = fragment.childNodes.length
+    while (l-- > 0) {
+      fragment.appendChild(fragment.childNodes[l])
+    }
+
+    element.appendChild(fragment)
+  }
+
+  const element = document.getElementById('ul')
+  reverseChildren(element)
+</script>
