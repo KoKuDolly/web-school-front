@@ -20,18 +20,48 @@
         border-right: solid 1px #fff;
         vertical-align: middle;
       }
+
       #container {
         line-height: 6px;
         width: 701px;
       }
     </style>
   </head>
+
   <body>
     <div id="container"></div>
     <button onclick="localStorage.setItem('map', JSON.stringify(map))">
       save
     </button>
     <button onclick="localStorage.removeItem('map')">clear</button>
+    <script>
+      // bfs 基础上，增加 启发式搜索
+      // 每找一步，找距离终点最小的点，继续往下走
+      class Sorted {
+        constructor(data, compare) {
+          this.data = data.slice()
+          this.compare = compare || ((a, b) => a - b)
+        }
+        take() {
+          if (!this.data.length) return
+          let min = this.data[0]
+          let minIndex = 0
+          for (let i = 1; i < this.data.length; i++) {
+            if (this.compare(this.data[i], min) < 0) {
+              min = this.data[i]
+              minIndex = i
+            }
+          }
+
+          this.data[minIndex] = this.data[this.data.length - 1]
+          this.data.pop()
+          return min
+        }
+        give(v) {
+          this.data.push(v)
+        }
+      }
+    </script>
     <script>
       const map = localStorage.getItem('map')
         ? JSON.parse(localStorage.getItem('map'))
@@ -72,7 +102,7 @@
 
       document.addEventListener('mouseup', () => (mousedown = false))
       document.addEventListener('contextmenu', (e) => e.preventDefault())
-
+      // bfs 广度优先搜索 寻路
       async function findPath(map, start, end) {
         let table = Object.create(map)
         let queue = [start]
