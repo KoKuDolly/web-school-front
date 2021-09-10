@@ -37,6 +37,7 @@
     <script>
       // bfs 基础上，增加 启发式搜索
       // 每找一步，找距离终点最小的点，继续往下走
+      // 用 二叉堆 优化这个数据结构
       class Sorted {
         constructor(data, compare) {
           this.data = data.slice()
@@ -59,6 +60,9 @@
         }
         give(v) {
           this.data.push(v)
+        }
+        get length() {
+          return this.data.length
         }
       }
     </script>
@@ -105,24 +109,31 @@
       // bfs 广度优先搜索 寻路
       async function findPath(map, start, end) {
         let table = Object.create(map)
-        let queue = [start]
+        // let queue = [start]
+        let queue = new Sorted([start], (a, b) => distance(a) - distance(b))
         async function insert(x, y, pre) {
           if (x < 0 || x > 100 || y < 0 || y > 100) return
-          if (table[x * 100 + y]) return
+          if (table[x * 100 + y]) return // TODO 优化，找到最优路径
 
           //   await sleep(1)
           if (container.children[x * 100 + y])
             container.children[x * 100 + y].style.backgroundColor = 'lightgreen'
 
           // map[x * 100 + y] = 2
-          table[x * 100 + y] = pre
+          table[x * 100 + y] = pre // TODO 优化，找到最优路径
 
-          queue.push([x, y])
+          // queue.push([x, y])
+          queue.give([x, y])
+        }
+
+        function distance(point) {
+          return (point[0] - end[0]) ** 2 + (point[1] - end[1]) ** 2
         }
 
         while (queue.length) {
-          let [x, y] = queue.shift()
-          // console.log(x, y)
+          // let [x, y] = queue.shift()
+          let [x, y] = queue.take()
+          console.log(x, y)
           if (x === end[0] && y === end[1]) {
             let path = []
             while (x !== start[0] || y !== start[1]) {
