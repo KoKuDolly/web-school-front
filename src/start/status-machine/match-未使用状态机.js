@@ -57,4 +57,5 @@ function match(string) {
   return false
 }
 
-console.log(match('abcdefg'))
+// console.log(match('abcdefg'))
+console.log(match('aabbccddeeffgg'))
