@@ -1,6 +1,6 @@
-import { Evaluator } from './evaluator'
+import { Evaluator } from './evaluator.js'
 
-import { parse } from './SyntaxParser'
+import { parse } from './SyntaxParser.js'
 
 document.getElementById('run').addEventListener('click', () => {
   const { value } = document.getElementById('source')
