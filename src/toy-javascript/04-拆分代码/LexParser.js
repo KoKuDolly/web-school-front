@@ -11,7 +11,7 @@ class XRegExp {
         length: 0,
       }
     let length = 0
-    let regexp = source[name].replace(/\<([^\>\<]+)\>/g, (str, $1) => {
+    let regexp = source[name].replace(/<([^><]+)>/g, (str, $1) => {
       this.table.set(start + length, $1)
       ++length
       let r = this.compileRegExp(source, $1, start + length)
@@ -47,17 +47,17 @@ export function* scan(str) {
       InputElement: '<Whitespace>|<LineTerminator>|<Comments>|<Token>',
       Whitespace: / |\t/,
       LineTerminator: /\n/,
-      Comments: /\/\*(?:[^*]|\*[^\/])*\*\/|\/\/[^\n]*/,
+      Comments: /\/\*(?:[^*]|\*[^/])*\*\/|\/\/[^\n]*/,
       Token: '<Literal>|<Keywords>|<Identifier>|<Punctuator>',
       Literal:
         '<NumericLiteral>|<BooleanLiteral>|<StringLiteral>|<NullLiteral>',
       NumericLiteral: /0x[0-9a-zA-Z]+|0o[0-7]+|0b[01]+|(?:[1-9][0-9]*|0)\.[0-9]*|\.[0-9]+|[0-9]+/,
       BooleanLiteral: /true|false/,
-      StringLiteral: /\"(?:[^\"\n]|\\[\s\S])*\"|\'(?:[^\'\n]|\\[\s\S])*\'/,
+      StringLiteral: /"(?:[^"\n]|\\[\s\S])*"|'(?:[^'\n]|\\[\s\S])*'/,
       NullLiteral: /null/,
       Identifier: /[a-zA-Z_$][a-zA-Z_$0-9]*/,
       Keywords: /if|else|for|function|var|let|new|while|break|continue/,
-      Punctuator: /\|\||\&\&|\-|\+\+|\+|\;|\?|\<|\=|\(|\)|\{|\}|\*|\.|\:|\[|\]|\=\>/,
+      Punctuator: /\|\||&&|-|\+\+|\+|;|\?|<|=|\(|\)|\{|\}|\*|\.|:|\[|\]|=>/,
     },
     'g',
     'InputElement'
